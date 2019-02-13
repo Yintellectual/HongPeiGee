@@ -1,0 +1,170 @@
+<html>
+
+<head>
+<link
+	href="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+.nav-item:hover {
+	background-color: white;
+}
+
+body {
+	background-color: #a3e2c5 !important;
+}
+
+.card-footer {
+	background-color: #d0f4e4 !important;
+}
+
+.container {
+	background-color: #f6fefa !important;
+}
+
+.bg-light {
+	background-color: #75c8a2 !important;
+}
+
+.icon-danger{
+	color:red;
+}
+</style>
+</head>
+
+<body>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+		<a class="navbar-brand" href="#">Navbar</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse"
+			data-target="#navbarSupportedContent"
+			aria-controls="navbarSupportedContent" aria-expanded="false"
+			aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<!-- (${navItem.hasDropdown}? dropdown:'') -->
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav mr-auto">
+				<li class="nav-item" >
+					<form class="m-0" th:action="${'/admin/nav/add/form?id='}" method="post">
+						<button class="btn btn-lg nav-link mx-3" type="submit">
+							<i class="fa fa-plus-square "></i>
+						</button>
+					</form>
+				</li>
+				<li th:each="navItem:${navItems}" class="nav-item mr-3 pr-3"
+					th:classappend="(${navItem.id} eq ${currentPageId})? active:''"><a
+					class="nav-link" th:id="${navItem.id}" href="#"
+					th:classappend="dropdown-toggle" th:text="${navItem.display}"
+					th:role="${navItem.hasDropdown}? button:''"
+					th:data-toggle="dropdown" th:aria-haspopup="true"
+					th:aria-expanded="false"></a>
+					<div class="btn-group " role="group" aria-label="Basic example">
+						
+						<form th:action="${'/admin/nav/left?id='+navItem.id}"
+							method="post">
+							<button class="btn btn-sm" type="submit">
+								<i class="fa fa-arrow-left"></i>
+							</button>
+						</form>
+						<form th:action="${'/admin/nav/right?id='+navItem.id}"
+							method="post">
+							<button class="btn btn-sm" type="submit">
+								<i class="fa fa-arrow-right"></i>
+							</button>
+						</form>
+						<form th:action="${'/admin/nav/edit/form?id='+navItem.id}"
+							method="post">
+							<button class="btn btn-sm" type="submit">
+								<i class="fa fa-edit"></i>
+							</button>
+						</form>
+						<form th:action="${'/admin/nav/remove?id='+navItem.id}"
+							method="post">
+							<button class="btn btn-sm text-warning btn-danger" type="submit">
+								<i class="fa fa-trash  "></i>
+							</button>
+						</form>
+					</div>
+					<div class="dropdown">
+						<div class="dropdown-menu" th:aria-labelledby="${navItem.id}">
+							<div class="dropdown-item">
+								<form
+									th:action="${'/admin/nav/add/form?parent_id='+navItem.id+'&id='}"
+									method="post">
+									<button class="btn" type="submit">
+										<i class="fa fa-plus-square"></i>
+									</button>
+								</form>
+							</div>
+							<div th:each="dropdownItem:${navItem.dropdown}">
+								<a class="dropdown-item" th:href="${dropdownItem.link}"
+									th:text="${dropdownItem.display}"
+									th:unless="${dropdownItem.display} eq 'driver'"></a>
+								<div th:if="${dropdownItem.display} eq 'driver'"
+									class="dropdown-divider" href="#"></div>
+								<div class="btn-group" role="group" aria-label="Basic example">
+									<form
+										th:action="${'/admin/nav/add/form?parent_id='+navItem.id+'&id='+dropdownItem.id}"
+										method="post">
+										<button class="btn btn-sm" type="submit">
+											<i class="fa fa-plus"></i>
+										</button>
+									</form>
+									<form
+										th:action="${'/admin/nav/remove?parent_id='+navItem.id+'&id='+dropdownItem.id}"
+										method="post">
+										<button class="btn btn-sm" type="submit">
+											<i class="fa fa-minus"></i>
+										</button>
+									</form>
+									<form
+										th:action="${'/admin/nav/up?parent_id='+navItem.id+'&id='+dropdownItem.id}"
+										method="post">
+										<button class="btn btn-sm" type="submit">
+											<i class="fa fa-arrow-up"></i>
+										</button>
+									</form>
+									<form
+										th:action="${'/admin/nav/down?parent_id='+navItem.id+'&id='+dropdownItem.id}"
+										method="post">
+										<button class="btn btn-sm" type="submit">
+											<i class="fa fa-arrow-down"></i>
+										</button>
+									</form>
+									<form
+										th:action="${'/admin/nav/edit/form?parent_id='+navItem.id+'&id='+dropdownItem.id}"
+										method="post">
+										<button class="btn btn-sm" type="submit">
+											<i class="fa fa-edit"></i>
+										</button>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div></li>
+				<li class="nav-item">
+					<form class="nav-item form-inline mx-3" action="/admin/nav/burn"
+						method="post">
+						<button class="btn btn-outline-primary" type="submit">Publish</button>
+					</form>
+				</li>
+			</ul>
+
+			<form class="form-inline my-2 my-lg-0">
+				<input class="form-control mr-sm-2" type="search"
+					placeholder="Search" aria-label="Search">
+				<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+			</form>
+		</div>
+	</nav>
+
+
+	<div>
+		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+		<script
+			src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+	</div>
+</body>
+</html>

@@ -1,0 +1,170 @@
+<html>
+
+<head>
+<link
+	href="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+.nav-item:hover {
+	background-color: white;
+}
+
+.nav-item:hover {
+	
+}
+
+body {
+	background-color: #a3e2c5 !important;
+}
+
+.card-footer {
+	background-color: #d0f4e4 !important;
+}
+
+.container {
+	background-color: #f6fefa !important;
+}
+
+.bg-light {
+	background-color: #75c8a2 !important;
+}
+</style>
+
+</head>
+
+<body>
+
+
+	<nav class="navbar navbar-expand-lg navbar-light bg-light">
+		<a class="navbar-brand" href="#">Navbar</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse"
+			data-target="#navbarSupportedContent"
+			aria-controls="navbarSupportedContent" aria-expanded="false"
+			aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<!-- (${navItem.hasDropdown}? dropdown:'') -->
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav mr-auto">
+				<li th:each="navItem:${navItems}" class="nav-item"
+					th:classappend="(${navItem.id} eq ${currentPageId})? active:''"><a
+					class="nav-link" th:id="${navItem.id}" th:href="${navItem.link}"
+					th:classappend="${navItem.hasDropdown}?dropdown-toggle:''"
+					th:text="${navItem.display}"
+					th:role="${navItem.hasDropdown}? button:''"
+					th:data-toggle="${navItem.hasDropdown}? dropdown:''"
+					th:aria-haspopup="${navItem.hasDropdown}? true:''"
+					th:aria-expanded="${navItem.hasDropdown}? false:''"></a>
+					<div th:if="${navItem.hasDropdown}" class="dropdown">
+						<div class="dropdown-menu" th:aria-labelledby="${navItem.id}">
+							<div th:each="dropdownItem:${navItem.dropdown}">
+								<a class="dropdown-item" th:href="${dropdownItem.link}"
+									th:text="${dropdownItem.display}"
+									th:unless="${dropdownItem.display} eq 'driver'"></a>
+								<div th:if="${dropdownItem.display} eq 'driver'"
+									class="dropdown-divider" href="#"></div>
+
+							</div>
+						</div>
+					</div></li>
+			</ul>
+			<form class="form-inline my-2 my-lg-0">
+				<input class="form-control mr-sm-2" type="search"
+					placeholder="Search" aria-label="Search">
+				<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+			</form>
+		</div>
+	</nav>
+
+	<div class="container mt-3 p-3">
+		<h3 th:text="${formTitle}"></h3>
+		<div class="btn-group py-3" role="group" aria-label="Basic example">
+			<button id="disableSelectButton" class="btn btn-warning btn-small" type="button"
+				onClick="disableTagSelect()">禁用标签</button>
+			<button id="disableSelectButton" class="btn btn-success btn-small" type="button"
+				onClick="enableTagSelect()">启用标签</button>
+		</div>
+		<form action="/admin/nav/update" method="POST">
+			<div hidden class="form-group">
+				<label for="parentId">Parent ID</label> <input type="text"
+					class="form-control" id="parentIdHelp" aria-describedby="parentId"
+					placeholder="Parent ID" name="parentId"
+					th:value="${parentId}? ${parentId}:''" /> <small id="parentIdHelp"
+					class="form-text text-muted"> ID of the parent item. Only
+					drop-down items have parents. A parent item is always a nav-bar
+					item and not a dorp-down item. For nav-bar items, leave the parent
+					id empty. </small>
+			</div>
+			<div hidden class="form-group">
+				<label for="elderBrotherId">Elder Brother ID</label> <input
+					type="text" class="form-control" id="elderBrotherId"
+					aria-describedby="elderBrotherIdHelp" name="elderBrotherId"
+					th:value="${elderBrotherId}? ${elderBrotherId}:''"
+					placeholder="Elder Brother ID" /> <small id="elderBrotherIdHelp"
+					class="form-text text-muted"> ID of the very previous item.
+					Leave the elder brother id empty if you want the item to be the
+					first one. The ID must be valid if not empty. </small>
+			</div>
+
+			<div class="form-group">
+				<label for="display">内容</label> <input type="text"
+					class="form-control" id="display" aria-describedby="displayHelp"
+					name="display" th:value="${navItem?.display}" placeholder="Display" />
+				<small id="displayHelp" class="form-text text-muted"> Text
+					that shows to everyone. </small>
+			</div>
+
+			<div hidden class="form-group">
+				<label for="id">ID</label> <input type="text" class="form-control"
+					id="id" aria-describedby="idHelp" name="id"
+					th:value="${navItem?.id}" placeholder="ID" /> <small id="idHelp"
+					class="form-text text-muted"> ID for this nav-bar item. The
+					ID must be unique. ID is not on display. </small>
+			</div>
+
+			<div class="form-group">
+				<label for="link">链接</label> <input type="text" class="form-control"
+					id="link" aria-describedby="linkHelp" name="link"
+					th:value="${navItem?.link}" placeholder="Link" /> <small
+					id="linkHelp" class="form-text text-muted"><span
+					class="text-warning">如果存在次级菜单， 链接会被忽略。 </span> The link address for
+					this nav-bar item. </small>
+			</div>
+
+			<div class="form-group">
+				<label for="exampleFormControlSelect2">选择标签 （按住control可以多选）
+				</label> <select multiple id="tagSelect" aria-describedby="tagSelectHelp"
+					class="form-control" name="tags">
+					<option th:each="tag:${tags}" th:value="${tag}" th:text="${tag}"
+						th:selected="${navItem?.tags?.contains(tag)}"></option>
+				</select> <small id="tagSelectHelp" class="form-text text-warning">如果没有禁用标签，
+					则上面填写的链接将被忽略。 </small>
+			</div>
+			<button type="submit" class="btn btn-primary">Submit</button>
+		</form>
+	</div>
+
+	<div>
+		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+		<script
+			src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+		<script>
+			$(document).ready(function() {
+				disableTagSelect();
+			});
+
+			function disableTagSelect() {
+				$("#tagSelect").prop('disabled', true);
+				$("#link").prop('disabled', false);
+			}
+
+			function enableTagSelect() {
+				$("#tagSelect").prop('disabled', false);
+				$("#link").prop('disabled', true);
+			}
+		</script>
+	</div>
+</body>
+</html>

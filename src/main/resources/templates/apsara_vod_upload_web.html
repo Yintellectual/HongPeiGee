@@ -1,0 +1,340 @@
+<html>
+
+<head>
+
+
+<link
+	href="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+.nav-item:hover {
+	
+}
+
+body {
+	background-color: #a3e2c5 !important;
+}
+
+.card-footer {
+	background-color: #d0f4e4 !important;
+}
+
+.container {
+	background-color: #f6fefa !important;
+}
+
+.bg-light {
+	background-color: #75c8a2 !important;
+}
+</style>
+
+</head>
+
+<body>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light pr-0">
+		<a class="navbar-brand font-weight-bolder" href="/">御宅</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse"
+			data-target="#navbarSupportedContent"
+			aria-controls="navbarSupportedContent" aria-expanded="false"
+			aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<!-- (${navItem.hasDropdown}? dropdown:'') -->
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav mr-auto">
+				<li th:each="navItem:${navItems}" class="nav-item font-weight-bold"
+					th:classappend="(${navItem.id} eq ${currentPageId})? active:''"><a
+					class="nav-link" th:id="${navItem.id}" th:href="${navItem.link}"
+					th:classappend="${navItem.hasDropdown}?dropdown-toggle:''"
+					th:text="${navItem.display}"
+					th:role="${navItem.hasDropdown}? button:''"
+					th:data-toggle="${navItem.hasDropdown}? dropdown:''"
+					th:aria-haspopup="${navItem.hasDropdown}? true:''"
+					th:aria-expanded="${navItem.hasDropdown}? false:''"></a>
+					<div th:if="${navItem.hasDropdown}" class="dropdown">
+						<div class="dropdown-menu" th:aria-labelledby="${navItem.id}">
+							<div th:each="dropdownItem:${navItem.dropdown}">
+								<a class="dropdown-item" th:href="${dropdownItem.link}"
+									th:text="${dropdownItem.display}"
+									th:unless="${dropdownItem.display} eq 'driver'"></a>
+								<div th:if="${dropdownItem.display} eq 'driver'"
+									class="dropdown-divider" href="#"></div>
+
+							</div>
+						</div>
+					</div></li>
+
+
+			</ul>
+			<form class="form-inline my-2 my-lg-0">
+				<input class="form-control mr-sm-2" type="search"
+					placeholder="Search" aria-label="Search">
+				<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+			</form>
+			<div class="small p-2" th:switch="${username}">
+				<div th:case="'null'">
+					<a class="m-2" href="/login/login">注册/登陆</a>
+				</div>
+				<div th:case="*">
+					<a class="m-2" th:href="${'/profile/'+username}"
+						th:text="${username}"></a><a href="/logout" class="m-2">登出</a>
+				</div>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container mt-5">
+		<div class="setting">
+
+			<div class="input-control">
+				<label for="region">配置项 region, 默认 cn-shanghai:</label> <select
+					id="region">
+					<option>cn-shanghai</option>
+					<option>eu-central-1</option>
+					<option>ap-southeast-1</option>
+				</select>
+			</div>
+			<div class="input-control">
+				<input type="file" id="fileUpload">
+			</div>
+
+			<div class="input-control" hidden>
+				<label for="userId">阿里云账号ID:</label> <input type="text"
+					value="275437149465559896" disabled class="form-control"
+					th:data-vod-upload-address="${uploadAddress}"
+					th:data-vod-upload-auth="${uploadAuth}"
+					th:data-vod-upload-video-id="${videoId}" id="userId"
+					placeholder="输入阿里云账号ID"> 集成产品后需要使用用户自己的账号ID
+			</div>
+
+		</div>
+	</div>
+
+	<div id="videoDetails"></div>
+
+	<div id="uploadDetails" hidden class="container mt-5">
+		<form action="#">
+			<div class="form-group">
+				<label for="title">视频标题</label> <input type="text"
+					class="form-control" id="title" aria-describedby="titleHelp"
+					placeholder="视频标题"> <small id="titleHelp"
+					class="form-text text-muted">视频的标题， 必填</small>
+			</div>
+			<div class="form-group">
+				<label for="fileName">视频文件名</label> <input type="text"
+					class="form-control" id="fileName" aria-describedby="fileNameHelp"
+					placeholder="视频文件名"><small id="fileNameHelp"
+					class="form-text text-muted">视频文件的文件名含扩展名如“同学聚会.mp4”， 必填</small>
+			</div>
+
+			<button id="confirm" type="submit" disabled
+				class="btn btn-primary">确定</button>
+			<button id="stsUpload" disabled type="submit"
+				class="btn btn-primary">开始上传</button>
+		</form>
+
+		<div class="upload">
+			<button id="pauseUpload">暂停</button>
+			<button id="resumeUpload" disabled="false">恢复上传</button>
+
+			<div>
+				<label class="status">上传状态: <span id="status"></span>
+				</label> <span class="progress">上传进度: <i id="sts-progress">0</i> %
+				</span>
+			</div>
+
+		</div>
+
+	</div>
+
+	<div>
+		<script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+		<script
+			src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+		<script src="/js/apsaraVideo/upload/aliyun-upload-sdk-1.5.0.min.js"></script>
+		<script src="/js/apsaraVideo/upload/lib/es6-promise.min.js"></script>
+		<script src="/js/apsaraVideo/upload/lib/aliyun-oss-sdk-5.3.1.min.js"></script>
+		<script>
+    $(document).ready(function () {
+      /** 
+       * 创建一个上传对象
+       * 使用 STSToken 上传方式
+       */
+      function createUploader () {
+    	var uploader = new AliyunUpload.Vod({
+          timeout: 60000,
+          partSize:  1048576,
+          parallel:  5,
+          retryCount:  3,
+          retryDuration: 2,
+          region: $('#region').val(),
+          userId: $('#userId').val(),
+          // 添加文件成功
+          addFileSuccess: function (uploadInfo) {
+            $('#confirm').attr('disabled', false)
+            $('#resumeUpload').attr('disabled', false)
+            $('#status').text('添加文件成功, 等待上传...')
+          },
+          // 开始上传
+           onUploadstarted:function (uploadInfo) {
+        	  
+        	  var uploadAuth = window.uploadCredential.uploadAuth;
+        	  var uploadAddress = window.uploadCredential.uploadAddress;
+        	  var videoId = window.uploadCredential.videoId;
+              uploader.setUploadAuthAndAddress(
+              		uploadInfo, 
+                      uploadAuth, 
+                      uploadAddress,
+                      videoId);
+              $('#status').text('文件开始上传...')
+            },
+          // 文件上传成功
+          onUploadSucceed: function (uploadInfo) {
+        	if(uploadInfo.state === 'Success'){
+        		reportUploadSuccess();
+        	} 
+            $('#status').text('文件上传成功!')
+          },
+          // 文件上传失败
+          onUploadFailed: function (uploadInfo, code, message) {
+            $('#status').text('文件上传失败!')
+          },
+          // 取消文件上传
+          onUploadCanceled: function (uploadInfo, code, message) {
+            $('#status').text('文件已暂停上传!')
+          },
+          // 文件上传进度，单位：字节, 可以在这个函数中拿到上传进度并显示在页面上
+          onUploadProgress: function (uploadInfo, totalSize, progress) {
+            var progressPercent = Math.ceil(progress * 100)
+            $('#sts-progress').text(progressPercent)
+            $('#status').text('文件上传中...')
+
+          },
+          // 上传凭证超时
+          onUploadTokenExpired: function (uploadInfo) {
+				alert("请刷新页面。 如果刷新之后仍报错请联系程序员。 ");
+          },
+          // 全部文件上传结束
+          onUploadEnd: function (uploadInfo) {
+            $('#status').text('文件上传完毕!')
+
+            console.log("onUploadEnd: uploaded all the files")
+          }
+        })
+        return uploader
+      }
+
+      var uploader = null
+
+      $('#fileUpload').on('change', function (e) {
+        var file = e.target.files[0]
+        
+        if (!file) {
+          alert("请先选择需要上传的文件!")
+          return
+        }
+        
+        $("#uploadDetails").attr("hidden", false);
+        var Title = file.name;
+        $("#title").val(Title);
+        $("#fileName").val(Title);
+        
+        var userData = '{"Vod":{}}'
+        if (uploader) {
+          uploader.stopUpload()
+          $('#sts-progress').text('0')
+          $('#status').text("")
+        }
+        uploader = createUploader()
+        // 首先调用 uploader.addFile(event.target.files[i], null, null, null, userData)
+        // console.log(userData)
+        uploader.addFile(file, null, null, null, userData)
+        $('#confirm').attr('disabled', false)
+        $('#pauseUpload').attr('disabled', true)
+        $('#resumeUpload').attr('disabled', true)
+      })
+
+      $('#confirm').on('click', function(){
+    	  createUpload();
+    	  $('#stsUpload').attr('disabled', false)
+    	  $('#confirm').attr('disabled', true)
+      })
+      
+      $('#stsUpload').on('click', function () {
+        // 然后调用 startUpload 方法, 开始上传
+        if (uploader !== null) {
+          uploader.startUpload()        
+          $('#stsUpload').attr('disabled', true)
+          $('#pauseUpload').attr('disabled', false)
+        }
+      })
+
+      $('#pauseUpload').on('click', function () {
+        if (uploader !== null) {
+          uploader.stopUpload()
+          $('#resumeUpload').attr('disabled', false)
+          $('#pauseUpload').attr('disabled', true)
+        }
+      })
+
+      $('#resumeUpload').on('click', function () {
+        if (uploader !== null) {
+          uploader.startUpload()
+          $('#resumeUpload').attr('disabled', true)
+          $('#pauseUpload').attr('disabled', false)
+        }
+      })
+
+    })
+
+    function reportUploadSuccess(){
+    	var url = "http://localhost:8080/admin/video/upload/success"
+    		var xhr = new XMLHttpRequest();
+        	var videoId = window.uploadCredential.videoId;
+        	xhr.open("POST", url, true);
+    		xhr.setRequestHeader("Content-Type", "application/json");
+    		xhr.onreadystatechange = function() {
+    			if (xhr.readyState === 4 && xhr.status === 200) {
+    				var json = JSON.parse(xhr.responseText);
+    				//show the file input and upload button
+    				//alert(json.status);
+    				window.location.reload()
+    			} else if (xhr.readyState === 4 && xhr.status != 200) {
+    				alert("需要管理员权限/内部错误");
+    			}
+    		};
+    		var data = JSON.stringify({
+    			"videoId" : videoId,
+    		});
+    		xhr.send(data);
+    }
+    
+	function createUpload() {
+    	var url = "http://localhost:8080/admin/video/upload/"
+		var xhr = new XMLHttpRequest();
+    	var title = $("#title").val();
+    	var fileName = $("#fileName").val();
+    	xhr.open("POST", url, true);
+		xhr.setRequestHeader("Content-Type", "application/json");
+		xhr.onreadystatechange = function() {
+			if (xhr.readyState === 4 && xhr.status === 200) {
+				var json = JSON.parse(xhr.responseText);
+				//show the file input and upload button
+				window.uploadCredential = json;
+			} else if (xhr.readyState === 4 && xhr.status != 200) {
+				alert("需要管理员权限/内部错误");
+			}
+		};
+		var data = JSON.stringify({
+			"title" : title,
+			"fileName": fileName,
+			"extension":{}
+		});
+		xhr.send(data);
+	}
+  </script>
+	</div>
+</body>
+</html>

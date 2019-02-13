@@ -1,0 +1,261 @@
+<html>
+
+<head>
+<meta content="width=device-width, initial-scale=1" name="viewport" />
+<link
+	href="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<meta charset="UTF-8">
+<meta http-equiv="x-ua-compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+<link rel="stylesheet"
+	href="https://g.alicdn.com/de/prismplayer/2.8.0/skins/default/aliplayer-min.css" />
+<script charset="utf-8" type="text/javascript"
+	src="https://g.alicdn.com/de/prismplayer/2.8.0/aliplayer-h5-min.js"></script>
+
+</head>
+
+
+<style>
+.nav-item:hover {
+	
+}
+
+body {
+	background-color: #a3e2c5 !important;
+}
+
+.card-footer {
+	background-color: #d0f4e4 !important;
+}
+
+.container {
+	background-color: #f6fefa !important;
+}
+
+.bg-light {
+	background-color: #75c8a2 !important;
+}
+
+.contentImg {
+	max-width: 300px;
+	width: auto;
+	height: auto;
+}
+
+.prism-player .prism-cover {
+	background-color: none;
+	display: block;
+}
+
+.prism-player .prism-marker-text {
+	display: none;
+}
+</style>
+</head>
+
+<body>
+
+	<nav class="navbar navbar-expand-lg navbar-light bg-light pr-0">
+		<a class="navbar-brand font-weight-bolder" href="/">御宅</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse"
+			data-target="#navbarSupportedContent"
+			aria-controls="navbarSupportedContent" aria-expanded="false"
+			aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<!-- (${navItem.hasDropdown}? dropdown:'') -->
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav mr-auto">
+				<li th:each="navItem:${navItems}" class="nav-item font-weight-bold"
+					th:classappend="(${navItem.id} eq ${currentPageId})? active:''"><a
+					class="nav-link" th:id="${navItem.id}" th:href="${navItem.link}"
+					th:classappend="${navItem.hasDropdown}?dropdown-toggle:''"
+					th:text="${navItem.display}"
+					th:role="${navItem.hasDropdown}? button:''"
+					th:data-toggle="${navItem.hasDropdown}? dropdown:''"
+					th:aria-haspopup="${navItem.hasDropdown}? true:''"
+					th:aria-expanded="${navItem.hasDropdown}? false:''"></a>
+					<div th:if="${navItem.hasDropdown}" class="dropdown">
+						<div class="dropdown-menu" th:aria-labelledby="${navItem.id}">
+							<div th:each="dropdownItem:${navItem.dropdown}">
+								<a class="dropdown-item" th:href="${dropdownItem.link}"
+									th:text="${dropdownItem.display}"
+									th:unless="${dropdownItem.display} eq 'driver'"></a>
+								<div th:if="${dropdownItem.display} eq 'driver'"
+									class="dropdown-divider" href="#"></div>
+
+							</div>
+						</div>
+					</div></li>
+
+
+			</ul>
+			<form class="form-inline my-2 my-lg-0">
+				<input class="form-control mr-sm-2" type="search"
+					placeholder="Search" aria-label="Search">
+				<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+			</form>
+			<div class="small p-2" th:switch="${username}">
+				<div th:case="'null'">
+					<a class="m-2" href="/login/login">注册/登陆</a>
+				</div>
+				<div th:case="*">
+					<a class="m-2" th:href="${'/profile/'+username}"
+						th:text="${username}"></a><a href="/logout" class="m-2">登出</a>
+				</div>
+			</div>
+		</div>
+	</nav>
+
+
+	<div class="container mb-2 p-2">
+		<button class="btn btn-primary" onClick="deleteVideos()">删除所有选中视频</button>
+	</div>
+	<div class="container py-2 ">
+		<div class="row">
+			<div class="card col-lg-2 mx-2 mt-3 p-2"
+				th:each="apsaraVideo:${apsaraVideos}">
+				<label class="form-check-label" th:for="${apsaraVideo.vid}"
+					style="text-align: center;">
+
+					<div class="prism-player card-img-top"
+						th:id="'player'+${apsaraVideo.vid}"
+						th:data-vod-play-auth="${apsaraVideo.playAuth}"
+						th:data-vod-video-id="${apsaraVideo.vid}"
+						th:data-vod-cover="${apsaraVideo.cover}"></div>
+
+					<div class="card-body">
+						<h5 class="card-title" th:text="${apsaraVideo.title}"></h5>
+						<p class="card-text" th:text="${apsaraVideo.createTime}"></p>
+					</div>
+				</label> <input type="checkbox" name="videoIds"
+					th:value="${apsaraVideo.vid}" class="apsaraVideoCheckbox"
+					th:id="${apsaraVideo.vid}">
+			</div>
+		</div>
+	</div>
+
+
+
+
+	<div id="footerSection" class="py-5 m-0"></div>
+
+	<div>
+		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+		<script
+			src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+		<script type="text/javascript">
+			//button.likeButton implementation summary:
+			//1. a likeButton is set hidden in plain HTML(hidden is removed on window load).
+			//2. a boolean, data-like-isLiked, is set by server
+			//3. a string, data-like-uuid, which is the uuid of the article/reply, is set by server. 
+			//3. count of likes is displayed with a span. The id and the initial count value are set by the server.
+			//4. a string, data-like-count-display, stores the id of the span in (3.)
+			//5. a string, data-like-count, stores the count of likes, initialized by the server.
+			$(window).on('load', function() {
+				$('.prism-player').each(function() {
+					createAliplayer($(this));
+				});
+
+			});
+
+			function deleteVideos() {
+				var videoIds = [];
+				var data = {};
+				$(".apsaraVideoCheckbox").each(function() {
+					videoIds.push(getCheckBoxValueIfChecked($(this)));
+				})
+				data.videoIds = videoIds;
+				makeDeletionRequest(data)
+			}
+			function getCheckBoxValueIfChecked($e) {
+				if ($e.is(":checked")) {
+					return $e.val();
+				}
+			}
+			function makeDeletionRequest(json) {
+				var url = "/admin/video/delete";
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", url, true);
+				xhr.setRequestHeader("Content-Type", "application/json");
+				xhr.onreadystatechange = function() {
+					if (xhr.readyState === 4 && xhr.status === 200) {
+						var json = JSON.parse(xhr.responseText);
+						window.location.reload()
+					} else if (xhr.readyState === 4 && xhr.status != 200) {
+						alert("需要管理员权限/内部错误");
+					}
+				};
+				var data = JSON.stringify(json);
+				xhr.send(data);
+			}
+		</script>
+
+		<script>
+			function createAliplayer($e) {
+				var player = new Aliplayer({
+					id : $e.attr("id"),
+					"width" : "100%",
+					"height" : "300",
+
+					//source : '播放url',
+					vid : $e.attr("data-vod-video-id"),
+					playauth : $e.attr("data-vod-play-auth"),
+					cover : $e.attr("data-vod-cover"),
+
+					"autoplay" : false,
+					"isLive" : false,
+					"rePlay" : false,
+					"playsinline" : true,
+					"preload" : true,
+					"controlBarVisibility" : "hover",
+					"useH5Prism" : true,
+
+					"skinLayout" : [ {
+						"name" : "bigPlayButton",
+						"align" : "blabs",
+						"x" : 30,
+						"y" : 80
+					}, {
+						"name" : "H5Loading",
+						"align" : "cc"
+					}, {
+						"name" : "controlBar",
+						"align" : "blabs",
+						"x" : 0,
+						"y" : 0,
+						"children" : [ {
+							"name" : "progress",
+							"align" : "blabs",
+							"x" : 0,
+							"y" : 44
+						}, {
+							"name" : "playButton",
+							"align" : "tl",
+							"x" : 15,
+							"y" : 12
+						}, {
+							"name" : "fullScreenButton",
+							"align" : "tr",
+							"x" : 10,
+							"y" : 12
+						}, {
+							"name" : "volume",
+							"align" : "tr",
+							"x" : 5,
+							"y" : 10
+						} ]
+					} ]
+
+				}, function(player) {
+					console.log('一个播放器创建好了。')
+				});
+			}
+		</script>
+	</div>
+</body>
+</html>

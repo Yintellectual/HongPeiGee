@@ -1,0 +1,128 @@
+<html>
+
+<head>
+<link
+	href="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+.nav-item:hover {
+	background-color: white;
+}
+</style>
+
+<style>
+.vaptcha-init-main {
+	display: table;
+	width: 100%;
+	height: 100%;
+	background-color: #EEEEEE;
+}
+
+​
+  .vaptcha-init-loading {
+	display: table-cell;
+	vertical-align: middle;
+	text-align: center
+}
+
+​
+  .vaptcha-init-loading>a {
+	display: inline-block;
+	width: 18px;
+	height: 18px;
+	border: none;
+}
+
+​
+  .vaptcha-init-loading>a img {
+	vertical-align: middle
+}
+
+​
+  .vaptcha-init-loading .vaptcha-text {
+	font-family: sans-serif;
+	font-size: 12px;
+	color: #CCCCCC;
+	vertical-align: middle
+}
+</style>
+
+
+</head>
+
+<body>
+	<div class="container" align="center">
+		<div class="border border-primary rounded" style="width: 640px">
+
+			<form align="center" method="POST">
+				<div class="form-group">
+					<h1 align="center">Register</h1>
+				</div>
+				<div class="form-group">
+					<input type="email" name="username"
+						class="form-control text-center" id="exampleInputEmail1"
+						aria-describedby="emailHelp" placeholder="Enter email"> <small
+						id="emailHelp" class="form-text text-muted">We'll never
+						share your email with anyone else.</small>
+				</div>
+				<div class="form-group">
+					<input type="password" name="password"
+						class="form-control text-center" id="exampleInputPassword1"
+						placeholder="Password">
+				</div>
+				<div class="form-group form-check">
+					<input type="checkbox" class="form-check-input" id="exampleCheck1">
+					<label class="form-check-label" for="exampleCheck1">Check
+						me out</label>
+				</div>
+				<!-- 点击式按钮建议高度介于36px与46px  -->
+				<!-- 嵌入式仅需设置宽度，高度根据宽度自适应，最小宽度为200px -->
+				<div class="form-group" align="center">
+					<div id="register-vaptcha-container" th:data-vaptcha-vid="${vaptcha_vid}" class="vaptcha-container" style="width: 300px; height: 36px;">
+						<!--vaptcha-container是用来引入VAPTCHA的容器，下面代码为预加载动画，仅供参考-->
+						<div class="vaptcha-init-main">
+							<div class="vaptcha-init-loading">
+								</a> <span class="vaptcha-text">VAPTCHA启动中...</span>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="form-group">
+					<button id="submit-button" disabled type="submit"
+						class="btn btn-primary">Submit</button>
+				</div>
+			</form>
+		</div>
+		<div>
+			<a href="/login/login">login</a>
+		</div>
+	</div>
+
+
+	<div>
+		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+		<script
+			src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+	</div>
+	<div>
+		<script src="https://cdn.vaptcha.com/v2.js"></script>
+		<script>
+			vaptcha({
+				//配置参数
+				vid : $("#register-vaptcha-container").attr("data-vaptcha-vid"), // 验证单元id
+				type : 'click', // 展现类型 点击式
+				container : $(".vaptcha-container")
+			// 按钮容器，可为Element 或者 selector
+			}).then(function(vaptchaObj) {
+				vaptchaObj.renderTokenInput('form');//向表单中添加input标签;
+				vaptchaObj.render();// 调用验证实例 vaptchaObj 的 render 方法加载验证按钮
+				vaptchaObj.listen('pass', function() {
+					$("#submit-button").removeAttr("disabled");
+				})
+			})
+		</script>
+	</div>
+</body>
+</html>

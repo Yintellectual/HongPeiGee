@@ -1,0 +1,238 @@
+<html>
+
+<head>
+<meta content="width=device-width, initial-scale=1" name="viewport" />
+<link
+	href="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+.nav-item:hover {
+	
+}
+
+body {
+	background-color: #a3e2c5 !important;
+}
+
+.card-footer {
+	background-color: #d0f4e4 !important;
+}
+
+.container {
+	background-color: #f6fefa !important;
+}
+
+.bg-light {
+	background-color: #75c8a2 !important;
+}
+
+.link:hover{
+ cursor: pointer; 
+}
+</style>
+</head>
+
+<body>
+
+	<nav class="navbar navbar-expand-lg navbar-light bg-light pr-0">
+		<a class="navbar-brand font-weight-bolder" href="/">御宅</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse"
+			data-target="#navbarSupportedContent"
+			aria-controls="navbarSupportedContent" aria-expanded="false"
+			aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<!-- (${navItem.hasDropdown}? dropdown:'') -->
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav mr-auto">
+				<li th:each="navItem:${navItems}" class="nav-item font-weight-bold"
+					th:classappend="(${navItem.id} eq ${currentPageId})? active:''"><a
+					class="nav-link" th:id="${navItem.id}" th:href="${navItem.link}"
+					th:classappend="${navItem.hasDropdown}?dropdown-toggle:''"
+					th:text="${navItem.display}"
+					th:role="${navItem.hasDropdown}? button:''"
+					th:data-toggle="${navItem.hasDropdown}? dropdown:''"
+					th:aria-haspopup="${navItem.hasDropdown}? true:''"
+					th:aria-expanded="${navItem.hasDropdown}? false:''"></a>
+					<div th:if="${navItem.hasDropdown}" class="dropdown">
+						<div class="dropdown-menu" th:aria-labelledby="${navItem.id}">
+							<div th:each="dropdownItem:${navItem.dropdown}">
+								<a class="dropdown-item" th:href="${dropdownItem.link}"
+									th:text="${dropdownItem.display}"
+									th:unless="${dropdownItem.display} eq 'driver'"></a>
+								<div th:if="${dropdownItem.display} eq 'driver'"
+									class="dropdown-divider" href="#"></div>
+
+							</div>
+						</div>
+					</div></li>
+
+
+			</ul>
+			<form class="form-inline my-2 my-lg-0">
+				<input class="form-control mr-sm-2" type="search"
+					placeholder="Search" aria-label="Search">
+				<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+			</form>
+			<div class="small p-2" th:switch="${username}">
+				<div th:case="'null'">
+					<a class="m-2" href="/login/login">注册/登陆</a>
+				</div>
+				<div th:case="*">
+					<a class="m-2" th:href="${'/profile/'+username}"
+						th:text="${username}"></a><a href="/logout" class="m-2">登出</a>
+				</div>
+			</div>
+		</div>
+	</nav>
+
+	<div class="container mt-5 py-3">
+		<form action="/admin/article/addOrUpdate" method="post">
+			<h4>
+				编辑内容 <a th:href="${'/admin/article/delete/'+article?.uuid}"
+					class="btn btn-danger pull-right">删除</a>
+			</h4>
+			<hr />
+
+			<div hidden class="form-group">
+				<label for="articleFormUUIDInput">UUID</label> <input
+					class="form-control" id="articleFormUUIDInput" type="text"
+					name="uuid" th:value="${article?.uuid}" placeholder="请勿变更此处" />
+			</div>
+
+
+
+			<div class="form-group">
+				<label for="articleFormTitleInput">标题</label> <input
+					class="form-control" id="articleFormTitleInput" type="text"
+					name="title" th:value="${article?.title}" placeholder="请填入标题" />
+			</div>
+
+			<div class="form-check border border-primary rounded p-3 my-2">
+				<button class="btn btn-primary" type=button onClick="getVideoList()">添加本站视频</button>
+				<small>只有上传到本站的视频需要在此处添加</small>
+				<div id="videoSelect" class="row">
+
+					<div hidden id="videoSelectDefaultOption"
+						class="link  card col-lg-2 mx-2 mt-3 ">
+						<label class="link  form-check-label" style="text-align: center;">
+							<img class="link  card-img-top border rounded p-0 my-5"
+							src="https://s2.ax1x.com/2019/02/08/kNeUJI.gif" />
+							<h5 class="link  card-title">上传视频</h5>
+							<p class="link card-text">在新窗口打开视频上传页面</p>
+						</label>
+					</div>
+
+				</div>
+			</div>
+
+
+
+
+			<div class="form-group">
+				<label for="articleFormPictureInput">封面图片</label> <input
+					class="form-control" id="articleFormPictureInput" type="text"
+					name="picture" th:value="${article?.picture}"
+					placeholder="请填入图片链接， 如 http:www.example.com/picture.png" />
+			</div>
+
+			<div class="form-group">
+				<label for="articleFormAbstractionTextarea">导语</label>
+				<textarea class="form-control" id="articleFormAbstractionTextarea"
+					name="abstraction" th:text="${article?.abstraction}"
+					placeholder="请填入对内容的简单概括或总结"></textarea>
+			</div>
+
+			<div class="form-group">
+				<label for="articleFormContentTextarea">内容</label>
+				<textarea class="form-control" id="articleFormContentTextarea"
+					style="min-height: 450px" name="content"
+					th:text="${article?.content}"
+					placeholder="请填入内容。 推荐采用以<div>开头的纯html代码。"></textarea>
+			</div>
+
+			<div class="form-group">
+				<label for="tagSelect">选择标签 （按住control可以多选） </label> <select
+					multiple class="form-control" style="min-height: 200px" name="tags"
+					id="tagSelect">
+					<option th:each="tag:${tags}" th:value="${tag}" th:text="${tag}"
+						th:selected="${article?.tags?.contains(tag)}">1</option>
+				</select>
+			</div>
+			<button class="btn btn-lg btn-primary" type="submit">提交</button>
+
+		</form>
+		<hr />
+		<input id="newTagInput" />
+		<button class="btn btn-primary" onClick="newTag()">添加标签</button>
+
+	</div>
+
+	<div>
+		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+		<script
+			src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+		<script type="text/javascript">
+			$(window).on('load', function() {
+				$("#videoSelectDefaultOption").on("click", function(){
+					var win = window.open('/admin/video/upload', '_blank');
+					win.focus();
+				})
+			});
+
+			function newTag() {
+				var tag = $("#newTagInput").val();
+				if (tag.length != 0) {
+					var o = new Option(tag, tag);
+					$(o).html(tag);
+					$("#tagSelect").append(o);
+				}
+			}
+
+			function getVideoList() {
+				var url = "http://localhost:8080/admin/video/list"
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", url, true);
+				xhr.setRequestHeader("Content-Type", "application/json");
+				xhr.onreadystatechange = function() {
+					if (xhr.readyState === 4 && xhr.status === 200) {
+						var json = JSON.parse(xhr.responseText);
+						//show the file input and upload button
+						var $select = $("#videoSelect");
+						$("#videoSelectDefaultOption").attr("hidden", false);
+						$.each(json, function(i, e) {
+							//alert(JSON.stringify(e));	
+							$select.prepend(createVideoOption(e));
+						})
+					} else if (xhr.readyState === 4 && xhr.status != 200) {
+						alert("需要管理员权限/内部错误");
+					}
+					
+				};
+				var data = JSON.stringify({});
+				xhr.send(data);
+			}
+
+			function createVideoOption(video) {
+				return "<div class=\"card col-lg-2 mx-2 mt-3 \">"
+						+ "<label class=\"form-check-label\" for=\""+video.videoId+"\" style=\"text-align: center;\">"
+						+ " <img class=\"card-img-top\" src=\""+video.coverImg+"\">"
+						+ "<div class=\"card-body\">"
+						+ " <h5 class=\"card-title\">"
+						+ video.title
+						+ "</h4>"
+						+ " <p class=\"card-text\">"
+						+ video.timestamp
+						+ "</p>"
+						+ "</div>"
+						+ "</label>"
+						+ " <input type=\"checkbox\" name=\"videoIds\" value=\""+video.videoId+"\" class=\"form-check-input\" id=\""+video.videoId+"\">"
+						+ "</div>";
+
+			}
+		</script>
+	</div>
+</body>
+</html>
