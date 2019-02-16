@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,8 +16,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.socket.WebSocketSession;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import com.spDeveloper.hongpajee.aliyun.ApsaraEmbassador;
 import com.spDeveloper.hongpajee.aliyun.ApsaraEmbassador.ApsaraLiveStream;
 import com.spDeveloper.hongpajee.navbar.service.NavbarRepository;
@@ -31,6 +36,8 @@ import com.spDeveloper.hongpajee.video.repository.VideoRepository;
 public class LiveController {
 
 	private String announcement = "<h1></h1>";
+	@Autowired
+	Gson gson;
 	
 	@Autowired
 	NavbarRepository navbarRepository;
@@ -55,7 +62,7 @@ public class LiveController {
 		return announcement;
 	}
 	
-	@PostMapping(name="/owner/live/streamKey", produces = "application/json", 
+	@PostMapping(value="/owner/live/streamKey", produces = "application/json", 
 			consumes = {"application/json"})
 	@ResponseBody
 	public JsonObject streamKey(@RequestBody JsonObject jsonObject) {
@@ -79,9 +86,21 @@ public class LiveController {
 		model.addAttribute("username", username);
 		model.addAttribute("announcement", announcement);
 		model.addAttribute("livePlayer", true);
-		model.addAttribute("pullURL", apsaraEmbassador.getCurrentLivePullURL());
+		model.addAttribute("pullURL", apsaraEmbassador.getCurrentApsaraLiveStream().getPullURL());
+		model.addAttribute("pullURL4flv", apsaraEmbassador.getCurrentApsaraLiveStream().getPullURL4flv());
+		model.addAttribute("pullURL4m3u8", apsaraEmbassador.getCurrentApsaraLiveStream().getPullURL4m3u8());
 
 		return "live";
+	}
+	
+	@MessageMapping("/chat")
+	@SendTo("/topic/messages")
+	public String send(String json, Principal principal) {
+		JsonObject jsonObject = gson.fromJson(json, JsonObject.class);
+		JsonObject result = new JsonObject();
+		result.add("from", new JsonPrimitive("server"));
+		result.add("text", new JsonPrimitive(principal.getName()+":"+jsonObject.get("text").getAsString()));
+		return result.toString();
 	}
 
 }

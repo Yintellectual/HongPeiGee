@@ -6,6 +6,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.concurrent.ThreadLocalRandom;
@@ -54,7 +56,7 @@ import com.spDeveloper.hongpajee.tag.service.TagPool;
 import com.spDeveloper.hongpajee.user.config.RedisUserDetailsManager;
 import com.spDeveloper.hongpajee.util.map.AccumulatorMap;
 
-@Controller
+
 @EnableScheduling
 @SpringBootApplication
 public class HongPeiJeeApplication {
@@ -67,6 +69,11 @@ public class HongPeiJeeApplication {
 	RedisJsonDAO dao;
 	@Autowired
 	ApsaraEmbassador apsaraEmbassador;
+
+	@Bean
+	DateTimeFormatter df() {
+		return DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").withZone(ZoneId.systemDefault());
+	}
 
 	@Bean
 	RestTemplate restTemplate(Gson gson) {
@@ -123,7 +130,7 @@ public class HongPeiJeeApplication {
 
 			@Override
 			public void run(String... args) throws Exception {
-				
+
 			}
 		};
 	}

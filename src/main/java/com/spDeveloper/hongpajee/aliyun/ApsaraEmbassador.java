@@ -43,12 +43,16 @@ public class ApsaraEmbassador {
 		private String pushURL;
 		private String streamKey;
 		private String pullURL;
+		private String pullURL4flv;
+		private String pullURL4m3u8;
 		
 		public JsonObject toJsonObject() {
 			JsonObject result = new JsonObject();
 			result.add("pushURL", new JsonPrimitive(pushURL));
 			result.add("streamKey", new JsonPrimitive(streamKey));
 			result.add("pullURL", new JsonPrimitive(pullURL));
+			result.add("pullURL4flv", new JsonPrimitive(pullURL4flv));
+			result.add("pullURL4m3u8", new JsonPrimitive(pullURL4m3u8));
 			return result; 
 		}
 	}
@@ -123,11 +127,11 @@ public class ApsaraEmbassador {
 			this.streamName = streamName;
 		}
 		
-		private String auth_key(String privateKey) {
+		private String auth_key(String app, String stream, String privateKey) {
 			int deadLine = deadLine();
 			int random = ThreadLocalRandom.current().nextInt(Integer.MAX_VALUE);
 			int uid = 0;
-			String hashValue = md5Encrypt(deadLine, random, uid, privateKey);
+			String hashValue = md5Encrypt(app, stream, deadLine, random, uid, privateKey);
 			return String.format("%d-%d-%d-%s", deadLine, random, uid, hashValue);
 		}
 
@@ -137,9 +141,9 @@ public class ApsaraEmbassador {
 			return now_epoch + validPeriodInSecond;
 		}
 
-		private String md5Encrypt(int timestamp, int rand, int uid, String privateKey) {
+		private String md5Encrypt(String app, String stream, int timestamp, int rand, int uid, String privateKey) {
 			/// {AppName}/{StreamName}-{timestamp}-{rand}-{uid}-{privatekey};
-			String data = String.format("/%s/%s-%d-%d-%d-%s", appName, streamName,timestamp, rand, uid, privateKey);
+			String data = String.format("/%s/%s-%d-%d-%d-%s", app, stream,timestamp, rand, uid, privateKey);
 			return DigestUtils.md5Hex(data).toLowerCase();
 		}
 
@@ -153,12 +157,19 @@ public class ApsaraEmbassador {
 			pushURL.append("/");
 			
 			StringBuilder streamKey = new StringBuilder();
-			streamKey.append(streamName).append("?auth_key=").append(auth_key(pushPrivateKey));
+			streamKey.append(streamName).append("?auth_key=").append(auth_key(appName,streamName,pushPrivateKey));
 			
 			StringBuilder pullURL = new StringBuilder();
 			pullURL.append(protocal).append("://").append(pullDomainName).append("/").append(appName).append("/")
-					.append(streamName).append("?auth_key=").append(auth_key(pullPrivateKey));
-			return new ApsaraLiveStream(pushURL.toString(), streamKey.toString(), pullURL.toString());
+					.append(streamName).append("?auth_key=").append(auth_key(appName,streamName,pullPrivateKey));
+			StringBuilder pullURL4flv = new StringBuilder();
+			pullURL4flv.append("http").append("://").append(pullDomainName).append("/").append(appName).append("/")
+					.append(streamName+".flv").append("?auth_key=").append(auth_key(appName,streamName+".flv",pullPrivateKey));
+			StringBuilder pullURL4m3u8 = new StringBuilder();
+			pullURL4m3u8.append("http").append("://").append(pullDomainName).append("/").append(appName).append("/")
+					.append(streamName+".m3u8").append("?auth_key=").append(auth_key(appName,streamName+".m3u8", pullPrivateKey));
+			
+			return new ApsaraLiveStream(pushURL.toString(), streamKey.toString(), pullURL.toString(), pullURL4flv.toString(), pullURL4m3u8.toString());
 		}
 		public JsonObject getJsonObject() {
 			return getApsaraLiveStream().toJsonObject();

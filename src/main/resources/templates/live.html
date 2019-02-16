@@ -12,6 +12,8 @@
 	href="https://g.alicdn.com/de/prismplayer/2.8.0/skins/default/aliplayer-min.css" />
 <script charset="utf-8" type="text/javascript"
 	src="https://g.alicdn.com/de/prismplayer/2.8.0/aliplayer-h5-min.js"></script>
+
+
 <style>
 .nav-item:hover {
 	
@@ -33,7 +35,42 @@ body {
 	background-color: #75c8a2 !important;
 }
 </style>
+<style>
+.fleeting{
+  font-weight: bold;
+  color: white;	
+  display:inline-block;
+  position: absolute;
+  -webkit-animation: myfirst 5s 1; /* Safari 4.0 - 8.0 */
+  -webkit-animation-direction: normal; /* Safari 4.0 - 8.0 */
+   -webkit-animation-timing-function: cubic-bezier(0.55, 0.055, 0.675, 0.19); /* Safari 4.0 - 8.0 */
+  animation: myfirst 15s 1;
+  animation-direction: normal;
+  animation-timing-function: linear;
+}
+/* Safari 4.0 - 8.0 */
+@-webkit-keyframes myfirst {
+  0%   {left: 0px; top: 0px;}
+  100% {left: 100%; top: 0px;}
+}
 
+@keyframes myfirst {
+  0%   {left: 0px; top: 0px;}
+  100% {left: 100%; top: 0px;}
+}
+
+.wrapper{
+ text-align:left;
+ background-color :rgba(0,0,0,0);
+ position:relative;
+}
+#damnuku{
+ position:absolute;
+ width: 100%;
+ height: 100%;
+ 
+}
+</style>
 </head>
 
 <body>
@@ -87,66 +124,232 @@ body {
 		</div>
 	</nav>
 
-	<div class="container text-center" th:if="${livePlayer}">
 
-		<div th:utext="${announcement}"></div>
-		<div id="player-con" class="prism-player" th:data-pull-url="${pullURL}"></div>
-		<script>
-			var player = new Aliplayer({
-				"id" : "player-con",
-				"source" : document.querySelector('#player-con').dataset.pullUrl,
-				"width" : "100%",
-				"height" : "600px",
-				"autoplay" : true,
-				"isLive" : true,
-				"cover" : "https://wx3.sinaimg.cn/mw690/9669f253ly1fzukrwtmypj20k00sbgnl.jpg",
-				"rePlay" : false,
-				"playsinline" : true,
-				"preload" : true,
-				"controlBarVisibility" : "hover",
-				"useH5Prism" : true
-			}, function(player) {
-				console.log("播放器创建了。");
-			});
-		</script>
-	</div>
 
-	<div class="container">
-		<div class="row">
-			<div class="col-lg-3" th:each="article:${articles}">
-				<div class="card my-4">
-					<img class="card-img-top" th:src="${article.picture}" alt="">
-					<div class="card-body">
-						<h4 class="card-title" th:text="${article.title}">Product
-							title</h4>
-						<h6 class="card-subtitle mb-2 text-muted"
-							th:text="${df.format(T(java.time.Instant).ofEpochMilli(article.lastEditedTime))}">Card
-							subtitle
-							th:text="${df.format(T(java.time.Instant).ofEpochMilli(article.lastEditedTime))}"</h6>
-						<p class="card-text" th:text="${article.abstraction}"></p>
-					</div>
-					<div class="card-footer text-right pr-0 pb-0 pt-0">
-						<span class='badge badge-small'><i class="fa fa-thumbs-up"></i></span>
-						<small class="small"
-							th:text="${article.getExtension('likeCount')?.get(0)}"></small> <span
-							class='badge badge-small'><i class="fa fa-reply"></i></span> <small
-							class="small"
-							th:text="${article.getExtension('replyCount')?.get(0)}"></small>
 
-						<span class='badge badge-small'><i class="fa fa-eye"></i></span> <small
-							th:text="${article.getExtension('viewCount')?.get(0)}"
-							class="small"></small> <a th:href="${'/article/'+article.uuid}"><button
-								type="button" class=" btn btn-primary rounded-0">READ</button></a>
+	<div class="" th:if="${livePlayer}">
+
+		<div class="text-center" th:utext="${announcement}"></div>
+		<div class="row px-4 mx-4">
+			<div class="col-lg-8">
+				<div class="embed-responsive embed-responsive-16by9">
+  					<div class="embed-responsive-item">
+						<div id="player-con" class="prism-player"
+							th:data-pull-url="${pullURL}"
+							th:data-pull-url-flv="${pullURL4flv}"
+							th:data-pull-url-m3u8="${pullURL4m3u8}">
+							<div id="damnuku" >
+								<div class="wrapper" style="height: 22"></div>
+								<div class="wrapper" style="height: 22"></div>
+								<div class="wrapper" style="height: 22"></div>
+								<div class="wrapper" style="height: 22"></div>
+								<div class="wrapper" style="height: 22"></div>
+								<div class="wrapper" style="height: 22"></div>
+								<div class="wrapper" style="height: 22"></div>
+								<div class="wrapper" style="height: 22"></div>
+								<div class="wrapper" style="height: 22"></div>
+								<div class="wrapper" style="height: 22"></div>
+								<div class="wrapper" style="height: 22"></div>
+								<div class="wrapper" style="height: 22"></div>
+								<div class="wrapper" style="height: 22"></div>
+							</div>	
+						</div>			
 					</div>
 				</div>
+				<div class="text-center">	
+			<div class="btn-group" role="group" aria-label="Basic example">
+  				<button type="button" class="btn btn-success" onClick="window.player.play()">播放</button>
+  				<button type="button" class="btn btn-warning" onClick="window.player.pause()">暂停</button>
+  				<button type="button" class="btn btn-info" onClick="window.player.mute()">静音</button>
+  				<button type="button" class="btn btn-info" onClick="window.player.volumeDown()">小声</button>
+  				<button type="button" class="btn btn-info" onClick="window.player.volumeUp()">大声</button>
+  				<button type="button" class="btn btn-disabled">音量<span id="playerVolumeDisplay">100</span>%</button>
+  				<button type="button" class="btn btn-danger" onClick="window.player.switchToFlv()">电脑端</button>
+  				<button type="button" class="btn btn-danger" onClick="window.player.switchToM3u8()">手机端</button>
+  				<button type="button" class="btn btn-danger" onClick="window.player.fullscreenService.requestFullScreen()">全屏</button>
 			</div>
 		</div>
-	</div>
+			</div>
+			<div class="col-lg-4" >
 
+				<div class="input-group" id="conversationDiv" style="bottom: 0;; z-index:100">
+					<div class="input-group-prepend">
+						<button class="btn btn-danger" onclick="clearMessage();">清空</button>
+					</div>
+					<input class="form-control" type="text" id="text" placeholder="Write a message..."/>
+					<div class="input-group-append">
+						<button class="btn btn-primary"  id="sendMessage" onclick="sendMessage();">发送</button>
+					</div>
+            	</div>
+            	<textarea id="chats" readonly style=" width:100%; height:400px" ></textarea>
+			</div>
+		</div>
+		
+						
+		
+		<script>
+		//this is the video player
+			window.playerVolumeDisplay = document.querySelector('#playerVolumeDisplay');
+			window.player = new Aliplayer(
+					{
+						"id" : "player-con",
+						"source" : document.querySelector('#player-con').dataset.pullUrlFlv,
+						"width" : "100%",
+						"height" : "100%",
+						"autoplay" : false,
+						"isLive" : true,
+						"cover" : "https://wx3.sinaimg.cn/mw690/9669f253ly1fzukrwtmypj20k00sbgnl.jpg",
+						"rePlay" : false,
+						"playsinline" : true,
+						"preload" : true,
+						"controlBarVisibility" : "hover",
+						"useH5Prism" : true,
+						"skinLayout":
+							[
+								{name: "fullScreenButton", align:"trabs"},
+							]
+					}, function(player) {
+						console.log("播放器创建了。");
+					});
+			window.player.mute = function(){
+				var volume = 0;
+				this.setVolume(volume);
+				window.playerVolumeDisplay.innerHTML=(volume*100).toFixed(2);
+			}
+			window.player.volumeUp = function(){
+				var volume = this.getVolume();
+				if( volume < 1){
+					volume += 0.1;
+					this.setVolume(volume);
+					window.playerVolumeDisplay.innerHTML=(volume*100).toFixed(2);
+				}
+			}
+			window.player.volumeDown = function(){
+				var volume = this.getVolume();
+				if( volume > 0){
+					volume -= 0.1;
+					this.setVolume(volume);
+					window.playerVolumeDisplay.innerHTML=(volume*100).toFixed(2);
+				}
+			}
+			window.player.switchToM3u8 = function(){
+				this.pause();
+				this.source = document.querySelector('#player-con').dataset.pullUrlM3u8;
+				
+				//this.play();
+			}
+			window.player.switchToFlv = function(){
+				this.pause();
+				this.source = document.querySelector('#player-con').dataset.pullUrlFlv;
+				
+				//this.play();
+			}
+		
+		</script>
+	</div>
+	
+
+	
 	<div>
 		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
 		<script
 			src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+		<script>
+		//this block is for danmuku
+			$(document)
+			.ready(function() {
+				$('.fleeting').one('webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
+										function() {
+											$(this).remove();
+										});
+				connect();
+				});
+	
+			var $damnuku = $('#damnuku');
+	
+			function addFleeting(msg){
+				var f = $('<div>', {class:'fleeting'}).text(msg);
+				$damnuku.children().eq(randomIntFromInterval(0,12)).prepend(f);
+				$('.fleeting')
+					.one(
+						'webkitAnimationEnd mozAnimationEnd MSAnimationEnd oanimationend animationend',
+						function() {
+							$(this).remove();
+					});
+			}
+	    
+			function randomIntFromInterval(min,max) // min and max included
+			{
+	    		return Math.floor(Math.random()*(max-min+1)+min);
+			}
+	
+			</script>
+			
+			<script src="https://cdn.bootcss.com/sockjs-client/1.3.0/sockjs.js"></script>
+			<script src="https://cdn.bootcss.com/stomp.js/2.3.3/stomp.js"></script>
+			
+			<script>
+			//this block is for websocket connection
+			 var stompClient = null;
+             
+	            function setConnected(connected) {
+	                
+	            }
+	             
+	            function connect() {
+	                var socket = new SockJS('/chat');
+	                stompClient = Stomp.over(socket);  
+	                stompClient.connect({}, function(frame) {
+	                    setConnected(true);
+	                    console.log('Connected: ' + frame);
+	                    stompClient.subscribe('/topic/messages', function(messageOutput) {
+	                        showMessageOutput(JSON.parse(messageOutput.body));
+	                    });
+	                });
+	            }
+	             
+	            function disconnect() {
+	                if(stompClient != null) {
+	                    stompClient.disconnect();
+	                }
+	                setConnected(false);
+	                console.log("Disconnected");
+	            }
+	             
+	            function sendMessage() {
+	                var from = "";
+	                var $text = $("#text");
+	                var text = $text.val();
+	                if(text){
+	                	$text.val("");
+	                	stompClient.send("/user/app/chat", {}, 
+	                  	JSON.stringify({'from':from, 'text':text}));
+	                }
+	            }
+	             
+	            function showMessageOutput(messageOutput) {
+	                addFleeting(messageOutput.text);
+	                var $chats = $("#chats");
+	                var old = $chats.val();
+	                $chats.val(messageOutput.text +"\n"+ old);
+	            }
+	            
+	            function clearMessage(){
+	            	var $chats = $("#chats");
+	            	$chats.val("");
+	            }
+	            
+	            
+	            var input = document.getElementById("text");
+	            input.addEventListener("keyup", function(event) {
+	              if (event.keyCode === 13) {
+	               event.preventDefault();
+	               document.getElementById("sendMessage").click();
+	              }
+	            });
+	            
+			
+			</script>
 	</div>
 </body>
 </html>

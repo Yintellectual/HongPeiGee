@@ -41,6 +41,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.spDeveloper.hongpajee.aliyun.ApsaraEmbassador;
 import com.spDeveloper.hongpajee.aop.annotation.Accumulated;
+import com.spDeveloper.hongpajee.aop.annotation.Archived;
 import com.spDeveloper.hongpajee.exception.OutdatedEditeeException;
 import com.spDeveloper.hongpajee.navbar.service.NavbarRepository;
 import com.spDeveloper.hongpajee.opinion.reply.entity.Reply;
@@ -55,8 +56,8 @@ import com.spDeveloper.hongpajee.video.repository.VideoRepository;
 @Controller
 public class ArticleController {
 
-	ZoneId zone = ZoneId.systemDefault();
-	DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").withZone(zone);
+	@Autowired 
+	DateTimeFormatter df;
 
 	Logger logger = LoggerFactory.getLogger(ArticleController.class);
 	private final String EXPECTED_ARTICLE_TIMESTAMP = "expectedArticleTimestamp";
@@ -86,8 +87,8 @@ public class ArticleController {
 
 	@GetMapping("/tag")
 	public String viewByTag(@RequestParam(name = "navItemId", required = false) String navItemId,
-			@RequestParam("tag") List<String> tag, Model model, Principal principal) {
-
+			@RequestParam("tag") List<String> tag, Model model, Principal principal, HttpServletRequest servletRequest) {
+		
 		List<Article> articles = new ArrayList<>(articleRepository.findByTag(tag));
 		Collections.sort(articles);
 
@@ -125,6 +126,7 @@ public class ArticleController {
 		return "index.html";
 	}
 
+	@Archived
 	@PostMapping("/admin/article/addOrUpdate")
 	public String addOrUpdate(@RequestParam(name = "uuid", required = false) String uuid,
 			@RequestParam("title") String title, @RequestParam("picture") String picture,
@@ -180,6 +182,7 @@ public class ArticleController {
 		return "article_form";
 	}
 
+	@Archived
 	@GetMapping("/admin/article/delete/{uuid}")
 	public String delete(@PathVariable("uuid") String uuid) {
 

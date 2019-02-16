@@ -1,0 +1,135 @@
+<html>
+
+<head>
+
+
+<link
+	href="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<style>
+.nav-item:hover {
+	
+}
+
+body {
+	background-color: #a3e2c5 !important;
+}
+
+.card-footer {
+	background-color: #d0f4e4 !important;
+}
+
+.container {
+	background-color: #f6fefa !important;
+}
+
+.bg-light {
+	background-color: #75c8a2 !important;
+}
+</style>
+
+</head>
+
+<body>
+	<nav class="navbar navbar-expand-lg navbar-light bg-light pr-0">
+		<a class="navbar-brand font-weight-bolder" href="/">御宅</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse"
+			data-target="#navbarSupportedContent"
+			aria-controls="navbarSupportedContent" aria-expanded="false"
+			aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<!-- (${navItem.hasDropdown}? dropdown:'') -->
+		<div class="collapse navbar-collapse" id="navbarSupportedContent">
+			<ul class="navbar-nav mr-auto">
+				<li th:each="navItem:${navItems}" class="nav-item font-weight-bold"
+					th:classappend="(${navItem.id} eq ${currentPageId})? active:''"><a
+					class="nav-link" th:id="${navItem.id}" th:href="${navItem.link}"
+					th:classappend="${navItem.hasDropdown}?dropdown-toggle:''"
+					th:text="${navItem.display}"
+					th:role="${navItem.hasDropdown}? button:''"
+					th:data-toggle="${navItem.hasDropdown}? dropdown:''"
+					th:aria-haspopup="${navItem.hasDropdown}? true:''"
+					th:aria-expanded="${navItem.hasDropdown}? false:''"></a>
+					<div th:if="${navItem.hasDropdown}" class="dropdown">
+						<div class="dropdown-menu" th:aria-labelledby="${navItem.id}">
+							<div th:each="dropdownItem:${navItem.dropdown}">
+								<a class="dropdown-item" th:href="${dropdownItem.link}"
+									th:text="${dropdownItem.display}"
+									th:unless="${dropdownItem.display} eq 'driver'"></a>
+								<div th:if="${dropdownItem.display} eq 'driver'"
+									class="dropdown-divider" href="#"></div>
+
+							</div>
+						</div>
+					</div></li>
+			</ul>
+			<form class="form-inline my-2 my-lg-0">
+				<input class="form-control mr-sm-2" type="search"
+					placeholder="Search" aria-label="Search">
+				<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
+			</form>
+			<div class="small p-2" th:switch="${username}">
+				<div th:case="'null'">
+					<a class="m-2" href="/login/login">注册/登陆</a>
+				</div>
+				<div th:case="*">
+					<a class="m-2" th:href="${'/profile/'+username}"
+						th:text="${username}"></a><a href="/logout" class="m-2">登出</a>
+				</div>
+			</div>
+		</div>
+	</nav>
+
+
+
+	<div class="container">
+		<hr />
+		<h2>业主</h2>
+		<table>
+			<tr>
+				<th>用户名</th>
+				<th>权限</th>
+			</tr>
+			<tr th:each="owner:${owners}">
+				<td th:text="${owner.username}"></td>
+				<td></td>
+			</tr>
+		</table>
+		<hr />
+		<h2>管理员</h2>
+		<table>
+			<tr>
+				<th>用户名</th>
+				<th>免除管理员</th>
+			</tr>
+			<tr th:each="admin:${admins}">
+				<td th:text="${admin.username}"></td>
+				<td><a th:href="${'/owner/admins/demote?username='+admin.username}">免除管理员</a></td>
+			</tr>
+		</table>
+		<hr />
+		<h2>普通用户</h2>
+		<table>
+			<tr>
+				<th>用户名</th>
+				<th>任命为管理员</th>
+			</tr>
+			<tr th:each="commoner:${users}">
+				<td th:text="${commoner.username}"></td>
+				<td><a th:href="${'/owner/users/promote?username='+commoner.username}">任命管理员</a></td>
+			</tr>
+		</table>
+
+	</div>
+
+	<div>
+		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+		<script
+			src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+	</div>
+</body>
+</html>

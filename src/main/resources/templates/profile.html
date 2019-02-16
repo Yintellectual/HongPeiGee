@@ -88,17 +88,25 @@ body {
 		<h2>站长功能</h2>
 		<div th:if="${roles.contains('ROLE_OWNER')}">
 			<ul class="list-group">
-				<li class="list-group-item"><a id="streamKeyLink" href="javascript:void(0);" onClick="getStreamKey()">开启直播</a>
-				<textarea id="announcement" class="form-control mt-2"
-						placeholder="直播说明, 将以大字体显示于直播窗口上方。使用HTML语言填写。" th:utext="${announcement}"></textarea></li>
-				<div hidden id="streamKeyDisplay">
-					<p>Push URL（推流地址 ）</p>
-					<pre id="pushURL"></pre>
-					<p>Stream Key（直播码）</p>
-					<pre id="streamKey"></pre>
-					<p>Pull URL（拉流地址）</p>
-					<pre id="pullURL"></pre>
-				</div>
+				<li class="list-group-item"><a id="streamKeyLink"
+					href="javascript:void(0);" onClick="getStreamKey()">开启直播</a> <textarea
+						id="announcement" class="form-control mt-2"
+						placeholder="直播说明, 将以大字体显示于直播窗口上方。使用HTML语言填写。"
+						th:utext="${announcement}"></textarea>
+					<div hidden id="streamKeyDisplay">
+						<p>Push URL（推流地址 ）</p>
+						<pre id="pushURL"></pre>
+						<p>Stream Key（直播码）</p>
+						<pre id="streamKey"></pre>
+						<p>Pull URL（拉流地址）</p>
+						<pre id="pullURL"></pre>
+						<p>Pull URL flv格式（拉流地址）</p>
+						<pre id="pullURL4flv"></pre>
+						<p>Pull URL m3u8格式（拉流地址）</p>
+						<pre id="pullURL4m3u8"></pre>
+					</div></li>
+				<li class="list-group-item"><a href="/owner/users/management">用户管理</a></li>
+				<li class="list-group-item"><a href="/owner/admins/archieve">管理员操作记录</a></li>
 			</ul>
 		</div>
 	</div>
@@ -113,23 +121,21 @@ body {
 					href="/admin/article/addOrUpdate/new">发布内容</a></li>
 				<li class="list-group-item"><a href="/admin/video/upload">上传视频</a></li>
 				<li class="list-group-item"><a href="/admin/video/management">视频管理</a></li>
-				<li class="list-group-item"><a
-					href="/admin/article/addOrUpdate">用户管理</a></li>
 			</ul>
 		</div>
 	</div>
 
 	<div class="container p-3 mt-3">
 		<h2>个人信息编辑</h2>
-		<hr/>
+		<hr />
 		<h3>修改密码</h3>
 		<form action="/user/profile/changePassword" method="post">
-			<input type="password" name="oldPassword" placeholder="旧密码"/>
-			<input type="password" name="newPassword1" placeholder="新密码"/>
-			<input type="password" name="newPassword2" placeholder="再输入一遍新密码"/>
+			<input type="password" name="oldPassword" placeholder="旧密码" /> <input
+				type="password" name="newPassword1" placeholder="新密码" /> <input
+				type="password" name="newPassword2" placeholder="再输入一遍新密码" />
 			<button>提交</button>
 		</form>
-		
+
 	</div>
 	<div>
 		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
@@ -137,7 +143,7 @@ body {
 			src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
 		<script>
 			function getStreamKey() {
-				
+
 				var announcement = $("textarea#announcement").val();
 				var url = "/owner/live/streamKey"
 				var xhr = new XMLHttpRequest();
@@ -149,6 +155,8 @@ body {
 						$("pre#pushURL").append(json.pushURL);
 						$("pre#streamKey").append(json.streamKey);
 						$("pre#pullURL").append(json.pullURL);
+						$("pre#pullURL4flv").append(json.pullURL4flv);
+						$("pre#pullURL4m3u8").append(json.pullURL4m3u8);
 						$("#streamKeyDisplay").attr("hidden", false);
 					} else if (xhr.readyState === 4 && xhr.status != 200) {
 						alert("需要站长权限/内部错误");
