@@ -69,9 +69,9 @@ public class HongPeiJeeApplication {
 	RedisJsonDAO dao;
 	@Autowired
 	ApsaraEmbassador apsaraEmbassador;
-	@Value("aliyun.ram.AccessKeyID")
+	@Value("${aliyun.ram.AccessKeyID}")
 	private String ALIYUN_RAM_ACCESS_KEY_ID;
-	@Value("aliyun.ram.AccessKeySecret")
+	@Value("${aliyun.ram.AccessKeySecret}")
 	private String ALIYUN_RAM_ACCESS_KEY_SECRET;
 
 	
