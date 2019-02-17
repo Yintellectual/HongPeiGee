@@ -290,7 +290,7 @@ body {
     })
 
     function reportUploadSuccess(){
-    	var url = "http://localhost:8080/admin/video/upload/success"
+    	var url = "/admin/video/upload/success"
     		var xhr = new XMLHttpRequest();
         	var videoId = window.uploadCredential.videoId;
         	xhr.open("POST", url, true);
@@ -312,7 +312,7 @@ body {
     }
     
 	function createUpload() {
-    	var url = "http://localhost:8080/admin/video/upload/"
+    	var url = "/admin/video/upload/"
 		var xhr = new XMLHttpRequest();
     	var title = $("#title").val();
     	var fileName = $("#fileName").val();

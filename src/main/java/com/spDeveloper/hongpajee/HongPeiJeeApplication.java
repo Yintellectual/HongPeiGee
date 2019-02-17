@@ -69,7 +69,12 @@ public class HongPeiJeeApplication {
 	RedisJsonDAO dao;
 	@Autowired
 	ApsaraEmbassador apsaraEmbassador;
+	@Value("aliyun.ram.AccessKeyID")
+	private String ALIYUN_RAM_ACCESS_KEY_ID;
+	@Value("aliyun.ram.AccessKeySecret")
+	private String ALIYUN_RAM_ACCESS_KEY_SECRET;
 
+	
 	@Bean
 	DateTimeFormatter df() {
 		return DateTimeFormatter.ofPattern("yyyy-MM-dd hh:mm:ss").withZone(ZoneId.systemDefault());
@@ -111,8 +116,8 @@ public class HongPeiJeeApplication {
 	@Bean
 	DefaultAcsClient defaultAcsClient() {
 		String regionId = "cn-shanghai";
-		DefaultProfile profile = DefaultProfile.getProfile(regionId, "LTAIjMVCPTKxTBn0",
-				"zL3ZwWTqwwc6KxlLlyex4rAy3vuCbG");
+		DefaultProfile profile = DefaultProfile.getProfile(regionId, ALIYUN_RAM_ACCESS_KEY_ID,
+				ALIYUN_RAM_ACCESS_KEY_SECRET);
 		DefaultAcsClient client = new DefaultAcsClient(profile);
 		return client;
 	}
