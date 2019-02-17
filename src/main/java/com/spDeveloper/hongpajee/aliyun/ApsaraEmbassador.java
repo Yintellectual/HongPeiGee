@@ -43,15 +43,15 @@ public class ApsaraEmbassador {
 	private String ALIYUN_RAM_ACCESS_KEY_SECRET;
 	@Value("${aliyun.live.room}")
 	private String room;
+	
 	private ApsaraLiveChannel apsaraLiveChannel;
+	private ApsaraLiveStream apsaraLiveStream;
 	
 	@Autowired
 	DefaultAcsClient defaultAcsClient;
 	@Bean
 	DefaultAcsClient defaultAcsClient() {
 		String regionId = "cn-shanghai";
-		System.out.println("acs_client"+ALIYUN_RAM_ACCESS_KEY_ID);
-		System.out.println("acs_client"+ALIYUN_RAM_ACCESS_KEY_SECRET);
 		DefaultProfile profile = DefaultProfile.getProfile(regionId, ALIYUN_RAM_ACCESS_KEY_ID,
 				ALIYUN_RAM_ACCESS_KEY_SECRET);
 		DefaultAcsClient client = new DefaultAcsClient(profile);
@@ -61,6 +61,7 @@ public class ApsaraEmbassador {
 	@PostConstruct
 	public void init() {
 		apsaraLiveChannel = new ApsaraLiveChannel("HongPeiGee", room);
+		apsaraLiveStream = apsaraLiveChannel.getApsaraLiveStream();
 	}
 	
 	@Data
@@ -85,7 +86,7 @@ public class ApsaraEmbassador {
 	}
 	
 	
-	private ApsaraLiveStream apsaraLiveStream = apsaraLiveChannel.getApsaraLiveStream();
+	
 	
 	@Scheduled(cron="10 0/20 * * * *")
 	public ApsaraLiveStream getNewApsaraLiveStream() {
