@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +41,9 @@ public class ApsaraEmbassador {
 	private String ALIYUN_RAM_ACCESS_KEY_ID;
 	@Value("${aliyun.ram.AccessKeySecret}")
 	private String ALIYUN_RAM_ACCESS_KEY_SECRET;
+	@Value("${aliyun.live.room}")
+	private String room;
+	private ApsaraLiveChannel apsaraLiveChannel;
 	
 	@Autowired
 	DefaultAcsClient defaultAcsClient;
@@ -51,6 +56,11 @@ public class ApsaraEmbassador {
 				ALIYUN_RAM_ACCESS_KEY_SECRET);
 		DefaultAcsClient client = new DefaultAcsClient(profile);
 		return client;
+	}
+	
+	@PostConstruct
+	public void init() {
+		apsaraLiveChannel = new ApsaraLiveChannel("HongPeiGee", room);
 	}
 	
 	@Data
@@ -74,7 +84,7 @@ public class ApsaraEmbassador {
 		}
 	}
 	
-	private ApsaraLiveChannel apsaraLiveChannel = new ApsaraLiveChannel("main", "000");
+	
 	private ApsaraLiveStream apsaraLiveStream = apsaraLiveChannel.getApsaraLiveStream();
 	
 	@Scheduled(cron="10 0/20 * * * *")
