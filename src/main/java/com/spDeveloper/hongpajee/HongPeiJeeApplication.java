@@ -69,10 +69,7 @@ public class HongPeiJeeApplication {
 	RedisJsonDAO dao;
 	@Autowired
 	ApsaraEmbassador apsaraEmbassador;
-	@Value("${aliyun.ram.AccessKeyID}")
-	private String ALIYUN_RAM_ACCESS_KEY_ID;
-	@Value("${aliyun.ram.AccessKeySecret}")
-	private String ALIYUN_RAM_ACCESS_KEY_SECRET;
+
 
 	
 	@Bean
@@ -113,14 +110,7 @@ public class HongPeiJeeApplication {
 		SpringApplication.run(HongPeiJeeApplication.class, args);
 	}
 
-	@Bean
-	DefaultAcsClient defaultAcsClient() {
-		String regionId = "cn-shanghai";
-		DefaultProfile profile = DefaultProfile.getProfile(regionId, ALIYUN_RAM_ACCESS_KEY_ID,
-				ALIYUN_RAM_ACCESS_KEY_SECRET);
-		DefaultAcsClient client = new DefaultAcsClient(profile);
-		return client;
-	}
+
 
 	@Autowired
 	RedisUserDetailsManager redisUserDetailsManager;
@@ -132,7 +122,7 @@ public class HongPeiJeeApplication {
 	CommandLineRunner commandLineRunner() {
 
 		return new CommandLineRunner() {
-
+			
 			@Override
 			public void run(String... args) throws Exception {
 

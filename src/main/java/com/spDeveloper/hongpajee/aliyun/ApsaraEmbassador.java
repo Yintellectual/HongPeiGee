@@ -9,12 +9,15 @@ import java.util.concurrent.ThreadLocalRandom;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import com.aliyuncs.DefaultAcsClient;
 import com.aliyuncs.exceptions.ClientException;
 import com.aliyuncs.exceptions.ServerException;
+import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.vod.model.v20170321.CreateUploadVideoRequest;
 import com.aliyuncs.vod.model.v20170321.CreateUploadVideoResponse;
 import com.aliyuncs.vod.model.v20170321.DeleteVideoRequest;
@@ -32,9 +35,23 @@ import lombok.NoArgsConstructor;
 @Service
 public class ApsaraEmbassador {
 
+	@Value("${aliyun.ram.AccessKeyID}")
+	private String ALIYUN_RAM_ACCESS_KEY_ID;
+	@Value("${aliyun.ram.AccessKeySecret}")
+	private String ALIYUN_RAM_ACCESS_KEY_SECRET;
+	
 	@Autowired
 	DefaultAcsClient defaultAcsClient;
-
+	@Bean
+	DefaultAcsClient defaultAcsClient() {
+		String regionId = "cn-shanghai";
+		System.out.println("acs_client"+ALIYUN_RAM_ACCESS_KEY_ID);
+		System.out.println("acs_client"+ALIYUN_RAM_ACCESS_KEY_SECRET);
+		DefaultProfile profile = DefaultProfile.getProfile(regionId, ALIYUN_RAM_ACCESS_KEY_ID,
+				ALIYUN_RAM_ACCESS_KEY_SECRET);
+		DefaultAcsClient client = new DefaultAcsClient(profile);
+		return client;
+	}
 	
 	@Data
 	@NoArgsConstructor
