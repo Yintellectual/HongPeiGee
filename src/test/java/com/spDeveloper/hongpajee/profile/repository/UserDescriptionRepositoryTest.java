@@ -23,30 +23,30 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("test")
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringBootTest(classes = HongPeiJeeApplication.class)
-public class UserDescriptionRepositoryGarbageCollectionTest {
+public class UserDescriptionRepositoryTest {
 
-	@Autowired
-	RedisUserDetailsManager redisUserDetailsManager;
 	@Autowired
 	UserDescriptionRepository userDescriptionRepository;
 	
 	
-	@Test
-	public void gcDoesNothingIfUserExists() throws NicknameExistsException {
-		when(redisUserDetailsManager.userExists(anyString())).thenReturn(true);
-		String username = "testUser1";
+	@Test(expected = NicknameExistsException.class)
+	public void returnFalseIfNicknameAlreadyExists() throws NicknameExistsException {
+		String username1 = "testUser1";
+		String username2 = "testUser2";
 		String nickname = "Nado";
-		userDescriptionRepository.add(username, new UserDescription(nickname, username) );
-		userDescriptionRepository.collectGarbage();
-		assertTrue(redisUserDetailsManager.userExists("testUser1"));
-		assertTrue("The GC should not delete description for existing users.", userDescriptionRepository.get(username).getNickname().equals(nickname));
-	}
-	@Test
-	public void gcRemovesNonexistingUser() throws NicknameExistsException {
-		when(redisUserDetailsManager.userExists(anyString())).thenReturn(false);
-		userDescriptionRepository.add("testUser2", new UserDescription("testUser2", "Nado"));
-		userDescriptionRepository.collectGarbage();
-		assertTrue("The GC should delete description for non existing users.", userDescriptionRepository.get("testUser2")==null);
+		userDescriptionRepository.add(username1, new UserDescription(nickname, username1));
+		userDescriptionRepository.add(username2, new UserDescription(nickname, username2));
 	}
 	
+	@Test
+	public void rootNicknameIsTheOne(){
+		String nickname = "至高";
+		String username = "root";
+		try {
+			userDescriptionRepository.setNickName(username, nickname);
+		} catch (NicknameExistsException e) {
+			//do nothing
+		}
+		assertEquals("Root has nickname 至高", nickname, userDescriptionRepository.getNickName(username));
+	}	
 }
