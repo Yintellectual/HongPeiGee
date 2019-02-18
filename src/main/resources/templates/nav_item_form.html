@@ -137,7 +137,7 @@ body {
 			<div class="form-group">
 				<label for="exampleFormControlSelect2">选择标签 （按住control可以多选）
 				</label> <select multiple id="tagSelect" aria-describedby="tagSelectHelp"
-					class="form-control" name="tags">
+					class="form-control" name="tags" size="20">
 					<option th:each="tag:${tags}" th:value="${tag}" th:text="${tag}"
 						th:selected="${navItem?.tags?.contains(tag)}"></option>
 				</select> <small id="tagSelectHelp" class="form-text text-warning">如果没有禁用标签，
