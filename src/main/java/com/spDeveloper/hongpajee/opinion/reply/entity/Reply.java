@@ -76,6 +76,13 @@ public class Reply extends Extendable implements Comparable<Reply> {
 		this.username = username;
 		this.articleUuid = articleUuid;
 	}
+	public Reply(Reply reply) {
+		this.time = reply.getTime();
+		this.uuid = reply.getUuid();
+		this.message = reply.getMessage();
+		this.articleUuid = reply.getArticleUuid();
+		this.username = reply.getUsername();
+	}
 	
 	@Override
 	public int compareTo(Reply o) {

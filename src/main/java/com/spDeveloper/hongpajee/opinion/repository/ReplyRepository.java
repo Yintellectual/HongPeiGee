@@ -64,6 +64,9 @@ public class ReplyRepository {
 		introduceArticle(articleUuid);
 		List<String> replyIds = new ArrayList<>(replyUuidStorage.get(articleUuid));
 		List<Reply> result = replyIds.stream().map(replyStorage::get).filter(r -> r != null)
+				.map(r->{
+					return new Reply(r);
+				})
 				.collect(Collectors.toList());
 		Collections.sort(result);
 		return result;

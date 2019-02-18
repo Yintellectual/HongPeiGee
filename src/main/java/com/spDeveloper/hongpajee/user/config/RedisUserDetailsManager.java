@@ -110,6 +110,10 @@ public class RedisUserDetailsManager implements UserDetailsManager, UserDetailsP
 		restore();
 	}
 
+	public Set<String> getUsernames(){
+		return new HashSet<>(users.keySet());
+	}
+	
 	/*
 	 * An independent data structure in redis is used to backup the
 	 * username-password-roles information. The SpringBootApplication will restore

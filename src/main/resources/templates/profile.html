@@ -8,82 +8,13 @@
 	rel="stylesheet">
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-<style>
-.nav-item:hover {
-	
-}
-
-body {
-	background-color: #a3e2c5 !important;
-}
-
-.card-footer {
-	background-color: #d0f4e4 !important;
-}
-
-.container {
-	background-color: #f6fefa !important;
-}
-
-.bg-light {
-	background-color: #75c8a2 !important;
-}
+<style th:replace="index :: style">
 </style>
-
 </head>
 
 <body>
-	<nav class="navbar navbar-expand-lg navbar-light bg-light pr-0">
-		<a class="navbar-brand font-weight-bolder" href="/">御宅</a>
-		<button class="navbar-toggler" type="button" data-toggle="collapse"
-			data-target="#navbarSupportedContent"
-			aria-controls="navbarSupportedContent" aria-expanded="false"
-			aria-label="Toggle navigation">
-			<span class="navbar-toggler-icon"></span>
-		</button>
-		<!-- (${navItem.hasDropdown}? dropdown:'') -->
-		<div class="collapse navbar-collapse" id="navbarSupportedContent">
-			<ul class="navbar-nav mr-auto">
-				<li th:each="navItem:${navItems}" class="nav-item font-weight-bold"
-					th:classappend="(${navItem.id} eq ${currentPageId})? active:''"><a
-					class="nav-link" th:id="${navItem.id}" th:href="${navItem.link}"
-					th:classappend="${navItem.hasDropdown}?dropdown-toggle:''"
-					th:text="${navItem.display}"
-					th:role="${navItem.hasDropdown}? button:''"
-					th:data-toggle="${navItem.hasDropdown}? dropdown:''"
-					th:aria-haspopup="${navItem.hasDropdown}? true:''"
-					th:aria-expanded="${navItem.hasDropdown}? false:''"></a>
-					<div th:if="${navItem.hasDropdown}" class="dropdown">
-						<div class="dropdown-menu" th:aria-labelledby="${navItem.id}">
-							<div th:each="dropdownItem:${navItem.dropdown}">
-								<a class="dropdown-item" th:href="${dropdownItem.link}"
-									th:text="${dropdownItem.display}"
-									th:unless="${dropdownItem.display} eq 'driver'"></a>
-								<div th:if="${dropdownItem.display} eq 'driver'"
-									class="dropdown-divider" href="#"></div>
+	<nav th:replace="index :: navbar"></nav>
 
-							</div>
-						</div>
-					</div></li>
-
-
-			</ul>
-			<form class="form-inline my-2 my-lg-0">
-				<input class="form-control mr-sm-2" type="search"
-					placeholder="Search" aria-label="Search">
-				<button class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
-			</form>
-			<div class="small p-2" th:switch="${username}">
-				<div th:case="'null'">
-					<a class="m-2" href="/login/login">注册/登陆</a>
-				</div>
-				<div th:case="*">
-					<a class="m-2" th:href="${'/profile/'+username}"
-						th:text="${username}"></a><a href="/logout" class="m-2">登出</a>
-				</div>
-			</div>
-		</div>
-	</nav>
 	<div class="container p-3">
 		<h2>站长功能</h2>
 		<div th:if="${roles.contains('ROLE_OWNER')}">
@@ -128,14 +59,28 @@ body {
 	<div class="container p-3 mt-3">
 		<h2>个人信息编辑</h2>
 		<hr />
-		<h3>修改密码</h3>
-		<form action="/user/profile/changePassword" method="post">
-			<input type="password" name="oldPassword" placeholder="旧密码" /> <input
-				type="password" name="newPassword1" placeholder="新密码" /> <input
-				type="password" name="newPassword2" placeholder="再输入一遍新密码" />
-			<button>提交</button>
-		</form>
-
+		<div class="container">
+			<h3>修改昵称</h3>
+			<form class="input-group" action="/user/profile/changeNickname"
+				method="post">
+				<input class="form-control" type="text" name="nickname"
+					placeholder="输入昵称" />
+				<div class="input-group-append">
+					<button class="btn btn-primary">提交</button>
+				</div>
+			</form>
+		</div>
+		<div class="container">
+			<h3>修改密码</h3>
+			<form class="input-group" action="/user/profile/changePassword" method="post">
+				<input class="form-control"  type="password" name="oldPassword" placeholder="旧密码" /> <input
+					class="form-control"  type="password" name="newPassword1" placeholder="新密码" /> <input
+					class="form-control"  type="password" name="newPassword2" placeholder="再输入一遍新密码" />
+				<div class="input-group-append">
+					<button class="btn btn-warning">提交</button>
+				</div>
+			</form>
+		</div>
 	</div>
 	<div>
 		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>

@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,8 +21,10 @@ import com.spDeveloper.hongpajee.aop.aspect.ArchiveAspect;
 import com.spDeveloper.hongpajee.navbar.service.NavbarRepository;
 import com.spDeveloper.hongpajee.opinion.repository.LikeRepository;
 import com.spDeveloper.hongpajee.opinion.repository.ReplyRepository;
+import com.spDeveloper.hongpajee.post.controller.ArticleController;
 import com.spDeveloper.hongpajee.post.entity.Article;
 import com.spDeveloper.hongpajee.post.repository.ArticleRepository;
+import com.spDeveloper.hongpajee.profile.repository.UserDescriptionRepository;
 import com.spDeveloper.hongpajee.tag.service.TagPool;
 import com.spDeveloper.hongpajee.user.config.RedisUserDetailsManager;
 import com.spDeveloper.hongpajee.user.entity.UserRole;
@@ -50,28 +53,24 @@ public class AdminController {
 	ApsaraEmbassador apsaraEmbassador;
 	@Autowired
 	ArchiveAspect archiveAspect;
+	@Autowired
+	ArticleController articleController;
+	@Autowired
+	UserDescriptionRepository userDescriptionRepository;
 	
 	@GetMapping("/owner/users/management")
 	public String userManagement(Model model, Principal principal) {
-		model.addAttribute("navItems", navbarRepository.getReadOnly());
-		String username = null;
-		List<String> roles = null;
-		if (principal != null) {
-			username = principal.getName();
-			roles = userDetailsManager.loadUserByUsername(username).getAuthorities().stream()
-					.map(ga -> ga.getAuthority()).collect(Collectors.toList());
-
-		} else {
-			username = "null";
-			roles = new ArrayList<>();
-
-		}
-		model.addAttribute("roles", roles);
-		model.addAttribute("username", username);
 		
-		model.addAttribute("owners", userDetailsManager.loadUserByRole(UserRole.ROLE_OWNER));
-		model.addAttribute("admins", userDetailsManager.loadUserByRole(UserRole.ROLE_ADMIN));
-		model.addAttribute("users", userDetailsManager.loadUserByRole(UserRole.ROLE_USER));
+		articleController.addCommonModleArrtibutes(model, principal);
+		
+		List<UserDetails> owners = userDetailsManager.loadUserByRole(UserRole.ROLE_OWNER);
+		List<UserDetails> admins = userDetailsManager.loadUserByRole(UserRole.ROLE_ADMIN);
+		List<UserDetails> users = userDetailsManager.loadUserByRole(UserRole.ROLE_USER);
+		model.addAttribute("owners", owners);
+		model.addAttribute("admins", admins);
+		model.addAttribute("users", users);
+		
+		model.addAttribute("nicknames", userDescriptionRepository.getNickNames(userDetailsManager.getUsernames()));
 		
 		return "user_management";
 	}

@@ -1,5 +1,8 @@
 package com.spDeveloper.hongpajee.profile.repository;
 
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -42,6 +45,7 @@ public class UserDescriptionRepository {
 	}
 	
 	public void save() {
+		System.out.println("User Descriptions: "+ userDescriptions);
 		redisJsonDAO.persist(userDescriptions, "userDescriptions");
 		redisJsonDAO.persist(nicknames, "nicknames");
 	}
@@ -76,12 +80,18 @@ public class UserDescriptionRepository {
 				if(nicknames.contains(nickname)) {
 					throw new NicknameExistsException("nickname: ["+nickname+"]");
 				}else {
+					UserDescription oldUserDescription = this.get(username);
+					if(oldUserDescription!=null) {
+						String oldNickname = oldUserDescription.getNickname();
+						if(oldNickname!=null) {
+							nicknames.remove(oldNickname);
+						}
+					}
 					nicknames.add(nickname);
 				}
-				
-				save();
 			}
 			userDescriptions.put(username, userDescription);
+			save();
 		}
 	}
 	
@@ -93,7 +103,12 @@ public class UserDescriptionRepository {
 	}
 	
 	public String getNickName(String username) {
-		return get(username).getNickname();
+		UserDescription userDescription = this.get(username);
+		if(userDescription ==null) {
+			return null;
+		}else {
+			return userDescription.getNickname();	
+		}
 	}
 	public void setNickName(String username, String nickname) throws NicknameExistsException {
 		UserDescription userDescription = get(username);
@@ -113,4 +128,25 @@ public class UserDescriptionRepository {
 			nicknames.remove(userDescription.getNickname());
 		}
 	}
+	public Map<String, String> getNickNames(Collection<String> usernames){
+		Map<String, String> result = new HashMap<>();
+		if(usernames==null) {
+			return null;
+		}else {
+			for(String username:usernames) {
+				if(username==null) {
+					
+				}else {
+					String nickname = this.getNickName(username);
+					if(nickname==null) {
+						
+					}else {
+						result.put(username, nickname);
+					}
+				}
+			}
+			return result;
+		}
+		
+	} 
 }

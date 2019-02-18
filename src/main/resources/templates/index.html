@@ -9,11 +9,7 @@
 <link rel="stylesheet"
 	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
-<style>
-.nav-item:hover {
-	
-}
-
+<style th:fragment="style">
 body {
 	background-color: #a3e2c5 !important;
 }
@@ -34,7 +30,7 @@ body {
 </head>
 
 <body>
-	<nav class="navbar navbar-expand-lg navbar-light bg-light pr-0">
+	<nav class="navbar navbar-expand-lg navbar-light bg-light pr-0" th:fragment="navbar">
 		<a class="navbar-brand font-weight-bolder" href="/">御宅</a>
 		<button class="navbar-toggler" type="button" data-toggle="collapse"
 			data-target="#navbarSupportedContent"
@@ -77,8 +73,8 @@ body {
 					<a class="m-2" href="/login/login">注册/登陆</a>
 				</div>
 				<div th:case="*">
-					<a class="m-2" th:href="${'/profile/'+username}"
-						th:text="${username}"></a><a href="/logout" class="m-2">登出</a>
+					<a class="m-2" th:href="${'/user/profile/'+username}" 
+						th:text="${nickname==null}?${username}:${nickname}"></a><a href="/logout" class="m-2">登出</a>
 				</div>
 			</div>
 		</div>

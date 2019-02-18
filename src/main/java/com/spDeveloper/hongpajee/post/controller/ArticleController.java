@@ -49,6 +49,7 @@ import com.spDeveloper.hongpajee.opinion.repository.LikeRepository;
 import com.spDeveloper.hongpajee.opinion.repository.ReplyRepository;
 import com.spDeveloper.hongpajee.post.entity.Article;
 import com.spDeveloper.hongpajee.post.repository.ArticleRepository;
+import com.spDeveloper.hongpajee.profile.repository.UserDescriptionRepository;
 import com.spDeveloper.hongpajee.tag.service.TagPool;
 import com.spDeveloper.hongpajee.util.map.AccumulatorMap;
 import com.spDeveloper.hongpajee.video.repository.VideoRepository;
@@ -56,7 +57,7 @@ import com.spDeveloper.hongpajee.video.repository.VideoRepository;
 @Controller
 public class ArticleController {
 
-	@Autowired 
+	@Autowired
 	DateTimeFormatter df;
 
 	Logger logger = LoggerFactory.getLogger(ArticleController.class);
@@ -80,15 +81,45 @@ public class ArticleController {
 	VideoRepository videoRepository;
 	@Autowired
 	ApsaraEmbassador apsaraEmbassador;
+	@Autowired
+	UserDescriptionRepository userDescriptionRepository;
 
 	@PostConstruct
 	public void init() {
 	}
 
+	public void addCommonModleArrtibutes(Model model, Principal principal) {
+		// 1. username
+		// 2. nickname @nullable
+		// 3. navItems
+		// 4. df
+		// 5. roles
+		String username = null;
+		List<String> roles = null;
+		if (principal != null) {
+			username = principal.getName();
+			roles = userDetailsManager.loadUserByUsername(username).getAuthorities().stream()
+					.map(ga -> ga.getAuthority()).collect(Collectors.toList());
+
+		} else {
+			username = "null";
+			roles = new ArrayList<>();
+
+		}
+		model.addAttribute("roles", roles);
+		model.addAttribute("username", username);
+		model.addAttribute("nickname", userDescriptionRepository.getNickName(username));
+		model.addAttribute("navItems", navbarRepository.getReadOnly());
+		model.addAttribute("df", df);
+	}
+
 	@GetMapping("/tag")
 	public String viewByTag(@RequestParam(name = "navItemId", required = false) String navItemId,
-			@RequestParam("tag") List<String> tag, Model model, Principal principal, HttpServletRequest servletRequest) {
-		
+			@RequestParam("tag") List<String> tag, Model model, Principal principal,
+			HttpServletRequest servletRequest) {
+
+		addCommonModleArrtibutes(model, principal);
+
 		List<Article> articles = new ArrayList<>(articleRepository.findByTag(tag));
 		Collections.sort(articles);
 
@@ -105,24 +136,12 @@ public class ArticleController {
 
 		model.addAttribute("articles", articles);
 
-		model.addAttribute("navItems", navbarRepository.getReadOnly());
 		if (navItemId == null) {
 			model.addAttribute("currentPageId", "index");
 		} else {
 			model.addAttribute("currentPageId", navItemId);
 		}
-		model.addAttribute("df", df);
 
-		String username = null;
-		if (principal == null || principal.getName() == null) {
-			username = "null";
-		} else {
-			username = principal.getName();
-		}
-
-		model.addAttribute("username", username);
-
-		
 		return "index.html";
 	}
 
@@ -155,11 +174,9 @@ public class ArticleController {
 	@GetMapping("/admin/article/addOrUpdate/{uuid}")
 	public String editForm(@PathVariable("uuid") String uuid, Model model, HttpServletRequest request,
 			Principal principal) {
-		model.addAttribute("navItems", navbarRepository.getReadOnly());
+		addCommonModleArrtibutes(model, principal);
 		model.addAttribute("tags", tagPool.getAllTags());
-		model.addAttribute("username", principal.getName());
-
-		// 0. create a repository of owned videos.
+				// 0. create a repository of owned videos.
 		// 1. list all owned video details
 		// 2. provide a multi-select of videos in article_form.html
 		// 3. article is stored with a list of video ids (has been implemented)
@@ -230,28 +247,15 @@ public class ArticleController {
 	@Accumulated
 	@GetMapping("/article/{uuid}")
 	public String article(@PathVariable("uuid") String uuid, Model model, Principal principal) {
+		addCommonModleArrtibutes(model, principal);
 		Article article = articleRepository.find(uuid);
 		articleRepository.revive(article);
-		model.addAttribute("navItems", navbarRepository.getReadOnly());
+		
 		article.setExtension("likeCount", "" + likeRepository.getLikeCount(article.getUuid()));
 		article.setExtension("replyCount", "" + replyRepository.getCount(uuid));
 		article.setExtension("viewCount", "" + accumulatorMap.get(uuid));
 		model.addAttribute("article", article);
-		model.addAttribute("df", df);
-		String username = null;
-		List<String> roles = null;
-		if (principal != null) {
-			username = principal.getName();
-			roles = userDetailsManager.loadUserByUsername(username).getAuthorities().stream()
-					.map(ga -> ga.getAuthority()).collect(Collectors.toList());
-			article.setExtension("isLiked", "" + likeRepository.isLike(article.getUuid(), username));
-		} else {
-			username = "null";
-			roles = new ArrayList<>();
-			article.setExtension("isLiked", "false");
-		}
-		model.addAttribute("roles", roles);
-		model.addAttribute("username", username);
+
 		List<Reply> replies = replyRepository.get(uuid);
 		replies.forEach(re -> {
 			if (principal == null) {
@@ -260,8 +264,16 @@ public class ArticleController {
 				re.setExtension("isLiked", "" + likeRepository.isLike(re.getUuid(), principal.getName()));
 			}
 			re.setExtension("likeCount", "" + likeRepository.getLikeCount(re.getUuid()));
+			String nickname = userDescriptionRepository.getNickName(re.getUsername());
+			if(nickname!=null) {
+				re.setUsername(nickname);
+			}
 		});
-
+		if (principal != null) {
+			article.setExtension("isLiked", "" + likeRepository.isLike(article.getUuid(), principal.getName()));
+		} else {
+			article.setExtension("isLiked", "false");
+		}
 		Map<String, String> playAuthMap = new HashMap<>();
 		Map<String, String> videoTitleMap = new HashMap<>();
 		Map<String, String> videoCoverMap = new HashMap<>();
@@ -273,7 +285,7 @@ public class ArticleController {
 			} catch (ServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				
+
 			} catch (ClientException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -297,7 +309,7 @@ public class ArticleController {
 			} catch (ServerException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-				
+
 			} catch (ClientException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -307,7 +319,7 @@ public class ArticleController {
 					// TODO Auto-generated catch block
 					throw new RuntimeException(e1);
 				}
-				
+
 			}
 			if (getVideoInfoResponse != null) {
 				videoTitleMap.put(videoId, getVideoInfoResponse.getVideo().getTitle());

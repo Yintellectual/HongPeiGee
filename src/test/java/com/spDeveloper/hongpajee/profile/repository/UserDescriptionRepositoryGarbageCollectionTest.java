@@ -48,5 +48,9 @@ public class UserDescriptionRepositoryGarbageCollectionTest {
 		userDescriptionRepository.collectGarbage();
 		assertTrue("The GC should delete description for non existing users.", userDescriptionRepository.get("testUser2")==null);
 	}
+	@Test
+	public void userDescriptionRepositoryIsNotNull() {
+		assertNotNull(userDescriptionRepository);
+	}
 	
 }

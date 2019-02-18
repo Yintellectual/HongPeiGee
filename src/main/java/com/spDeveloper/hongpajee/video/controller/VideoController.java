@@ -31,6 +31,7 @@ import com.spDeveloper.hongpajee.aliyun.ApsaraEmbassador;
 import com.spDeveloper.hongpajee.navbar.service.NavbarRepository;
 import com.spDeveloper.hongpajee.opinion.repository.LikeRepository;
 import com.spDeveloper.hongpajee.opinion.repository.ReplyRepository;
+import com.spDeveloper.hongpajee.post.controller.ArticleController;
 import com.spDeveloper.hongpajee.post.entity.Article;
 import com.spDeveloper.hongpajee.post.repository.ArticleRepository;
 import com.spDeveloper.hongpajee.tag.service.TagPool;
@@ -61,23 +62,12 @@ public class VideoController {
 	VideoRepository videoRepository;
 	@Autowired
 	Gson gson;
-
+	@Autowired
+	ArticleController articleController;
+	
 	@GetMapping("/admin/video/upload")
 	public String uploadPage(Model model, Principal principal) throws ServerException, ClientException {
-		model.addAttribute("navItems", navbarRepository.getReadOnly());
-		String username = null;
-		List<String> roles = null;
-		if (principal != null) {
-			username = principal.getName();
-			roles = userDetailsManager.loadUserByUsername(username).getAuthorities().stream()
-					.map(ga -> ga.getAuthority()).collect(Collectors.toList());
-		} else {
-			username = "null";
-			roles = new ArrayList<>();
-		}
-		model.addAttribute("roles", roles);
-		model.addAttribute("username", username);
-
+		articleController.addCommonModleArrtibutes(model, principal);
 		return "apsara_vod_upload_web";
 	}
 
@@ -138,10 +128,8 @@ public class VideoController {
 
 	@GetMapping("/admin/video/management")
 	public String videoManagement(Model model, Principal principal) throws ServerException {
-		model.addAttribute("navItems", navbarRepository.getReadOnly());
-		model.addAttribute("tags", tagPool.getAllTags());
-		model.addAttribute("username", principal.getName());
-
+		articleController.addCommonModleArrtibutes(model, principal);
+		
 		Set<String> videoIds = videoRepository.toSet();
 
 		List<ApsaraVideo> apsaraVideos = new ArrayList<>();

@@ -26,6 +26,7 @@ import com.spDeveloper.hongpajee.aliyun.ApsaraEmbassador.ApsaraLiveStream;
 import com.spDeveloper.hongpajee.navbar.service.NavbarRepository;
 import com.spDeveloper.hongpajee.opinion.repository.LikeRepository;
 import com.spDeveloper.hongpajee.opinion.repository.ReplyRepository;
+import com.spDeveloper.hongpajee.post.controller.ArticleController;
 import com.spDeveloper.hongpajee.post.entity.Article;
 import com.spDeveloper.hongpajee.post.repository.ArticleRepository;
 import com.spDeveloper.hongpajee.tag.service.TagPool;
@@ -57,7 +58,9 @@ public class LiveController {
 	VideoRepository videoRepository;
 	@Autowired
 	ApsaraEmbassador apsaraEmbassador;
-
+	@Autowired
+	ArticleController articleController;
+	
 	public String getAnnouncement() {
 		return announcement;
 	}
@@ -74,16 +77,8 @@ public class LiveController {
 	@GetMapping("/user/live")
 	public String live(Model model, Principal principal) {
 
-		model.addAttribute("navItems", navbarRepository.getReadOnly());
-
-		String username = null;
-		List<String> roles = null;
-		username = principal.getName();
-		roles = userDetailsManager.loadUserByUsername(username).getAuthorities().stream()
-					.map(ga -> ga.getAuthority()).collect(Collectors.toList());
+		articleController.addCommonModleArrtibutes(model, principal);
 		
-		model.addAttribute("roles", roles);
-		model.addAttribute("username", username);
 		model.addAttribute("announcement", announcement);
 		model.addAttribute("livePlayer", true);
 		model.addAttribute("pullURL", apsaraEmbassador.getCurrentApsaraLiveStream().getPullURL());
