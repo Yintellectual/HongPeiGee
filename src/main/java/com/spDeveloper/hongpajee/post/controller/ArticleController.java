@@ -111,6 +111,18 @@ public class ArticleController {
 		model.addAttribute("nickname", userDescriptionRepository.getNickName(username));
 		model.addAttribute("navItems", navbarRepository.getReadOnly());
 		model.addAttribute("df", df);
+		
+		String style = "body {	background-color: %s; }\n"+
+		".card-footer { 	background-color: %s; }\n"+
+".container { background-color: %s; }\n"+
+		".bg-light {	background-color: %s; }";
+		
+		String body_bg_color = "#FC909A !important";//"#FB6775 !important";
+		String card_footer_bg_color= "#FEB7BE !important";//"#FD8C97 !important";
+		String container_bg_color = "#FFE3E6 !important";//"#FEB7BE !important";
+		String bg_light = "#FA6D7A !important";//"#F94758 !important";
+		
+		model.addAttribute("style", String.format(style, body_bg_color, card_footer_bg_color, container_bg_color, bg_light));
 	}
 
 	@GetMapping("/tag")
