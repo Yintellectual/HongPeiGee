@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.stereotype.Controller;
@@ -83,6 +84,18 @@ public class ArticleController {
 	ApsaraEmbassador apsaraEmbassador;
 	@Autowired
 	UserDescriptionRepository userDescriptionRepository;
+	// style.body.bgcolor=#a3e2c5
+	// sytle.container.bgcolor=#f6fefa
+	// style.navbar.bgcolor=#75c8a2
+	// sytle.cardfooter.bgcolor=#d0f4e4
+	@Value("${style.body.bgcolor}")
+	String style_body_bgcolor;
+	@Value("${sytle.container.bgcolor}")
+	String style_container_bgcolor;
+	@Value("${style.navbar.bgcolor}")
+	String style_navbar_bgcolor;
+	@Value("${sytle.cardfooter.bgcolor}")
+	String style_cardfooter_bgcolor;
 
 	@PostConstruct
 	public void init() {
@@ -111,18 +124,12 @@ public class ArticleController {
 		model.addAttribute("nickname", userDescriptionRepository.getNickName(username));
 		model.addAttribute("navItems", navbarRepository.getReadOnly());
 		model.addAttribute("df", df);
-		
-		String style = "body {	background-color: %s; }\n"+
-		".card-footer { 	background-color: %s; }\n"+
-".container { background-color: %s; }\n"+
-		".bg-light {	background-color: %s; }";
-		
-		String body_bg_color = "#FC909A !important";//"#FB6775 !important";
-		String card_footer_bg_color= "#FEB7BE !important";//"#FD8C97 !important";
-		String container_bg_color = "#FFE3E6 !important";//"#FEB7BE !important";
-		String bg_light = "#FA6D7A !important";//"#F94758 !important";
-		
-		model.addAttribute("style", String.format(style, body_bg_color, card_footer_bg_color, container_bg_color, bg_light));
+
+		String style = "body {	background-color: %s !important; }\n" + ".card-footer { 	background-color: %s !important; }\n"
+				+ ".container { background-color: %s !important; }\n" + ".bg-light {	background-color: %s !important; } ";
+
+		model.addAttribute("style",
+				String.format(style, style_body_bgcolor, style_cardfooter_bgcolor, style_container_bgcolor, style_navbar_bgcolor));
 	}
 
 	@GetMapping("/tag")
@@ -188,7 +195,7 @@ public class ArticleController {
 			Principal principal) {
 		addCommonModleArrtibutes(model, principal);
 		model.addAttribute("tags", tagPool.getAllTags());
-				// 0. create a repository of owned videos.
+		// 0. create a repository of owned videos.
 		// 1. list all owned video details
 		// 2. provide a multi-select of videos in article_form.html
 		// 3. article is stored with a list of video ids (has been implemented)
@@ -262,7 +269,7 @@ public class ArticleController {
 		addCommonModleArrtibutes(model, principal);
 		Article article = articleRepository.find(uuid);
 		articleRepository.revive(article);
-		
+
 		article.setExtension("likeCount", "" + likeRepository.getLikeCount(article.getUuid()));
 		article.setExtension("replyCount", "" + replyRepository.getCount(uuid));
 		article.setExtension("viewCount", "" + accumulatorMap.get(uuid));
@@ -277,7 +284,7 @@ public class ArticleController {
 			}
 			re.setExtension("likeCount", "" + likeRepository.getLikeCount(re.getUuid()));
 			String nickname = userDescriptionRepository.getNickName(re.getUsername());
-			if(nickname!=null) {
+			if (nickname != null) {
 				re.setUsername(nickname);
 			}
 		});
