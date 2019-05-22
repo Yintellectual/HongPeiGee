@@ -74,7 +74,7 @@ public class RedisJsonDAO {
 		}
 		String key = "JSONStorage:list:name:" + name;
 		delete(key);
-		listOps.rightPushAll(key, list.stream().map(gson::toJson).collect(Collectors.toList()).toArray(new String[0]));
+		listOps.leftPushAll(key, list.stream().map(gson::toJson).collect(Collectors.toList()).toArray(new String[0]));
 	}
 
 	public <T> Map<String, T> recoverMap(String name, Class<T> classOfT) {

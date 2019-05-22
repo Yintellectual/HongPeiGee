@@ -1,0 +1,48 @@
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<link
+	href="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+.link:hover{
+ cursor: pointer; 
+}
+</style>
+</style>
+</head>
+
+<body>
+
+
+	<div class="container mt-5 py-3">
+		<form action="/user/message/test" method="post">
+		
+		
+		
+			<div class="form-group">
+				<label for="articleFormContentTextarea">内容</label>
+				<textarea class="form-control" id="articleFormContentTextarea"
+					style="min-height: 450px" name="input"
+					th:text="${article?.content}"
+					placeholder="请填入内容。 推荐采用以<div>开头的纯html代码。"></textarea>
+			</div>
+
+			<button class="btn btn-lg btn-primary" type="submit">提交</button>
+
+		</form>
+
+
+	</div>
+
+	<div>
+		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+		<script
+			src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+	</div>
+</body>
+</html>

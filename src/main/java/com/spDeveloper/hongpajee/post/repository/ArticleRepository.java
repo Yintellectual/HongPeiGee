@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 import com.google.gson.Gson;
 import com.spDeveloper.hongpajee.exception.OutdatedEditeeException;
 import com.spDeveloper.hongpajee.post.entity.Article;
-import com.spDeveloper.hongpajee.post.entity.Article.LazyLoadContent;
+import com.spDeveloper.hongpajee.post.entity.LazyLoadContent;
 import com.spDeveloper.hongpajee.redis.RedisJsonDAO;
 import com.spDeveloper.hongpajee.tag.service.TagPool;
 
@@ -42,7 +42,7 @@ public class ArticleRepository {
 	TagPool<Article> tagPool;
 
 	Map<String, Article> repository = new HashMap<>();
-	Map<String, Article.LazyLoadContent> lazyLoadRepository = new HashMap<>();
+	Map<String, LazyLoadContent> lazyLoadRepository = new HashMap<>();
 
 	@PostConstruct
 	public void init() {
@@ -57,7 +57,7 @@ public class ArticleRepository {
 
 	public void restore() {
 		repository = redisJsonDAO.recoverMap("articleRepository", Article.class);
-		lazyLoadRepository = redisJsonDAO.recoverMap("lazyLoadRepository", Article.LazyLoadContent.class);
+		lazyLoadRepository = redisJsonDAO.recoverMap("lazyLoadRepository", LazyLoadContent.class);
 		repository.values().forEach(tagPool::addElement);
 	}
 

@@ -36,6 +36,9 @@ import com.spDeveloper.hongpajee.util.extendable.Extendable;
 
 import lombok.Data;
 
+/**
+ * rewrite this class to use the proxy design pattern, more specifically, synchronization proxy design pattern .
+ * */
 @Data
 public class Article extends Extendable implements Comparable<Article>, TagHolder {
 
@@ -320,39 +323,7 @@ public class Article extends Extendable implements Comparable<Article>, TagHolde
 		}
 	}
 
-	@Data
-	public static class LazyLoadContent {
-
-		private String content;
-
-		public String getContent() {
-			return content;
-		}
-	}
-
-	public static class LazyLoadContentTypeAdapter
-			implements JsonSerializer<LazyLoadContent>, JsonDeserializer<LazyLoadContent> {
-
-		@Override
-		public LazyLoadContent deserialize(JsonElement json, Type typeOfT, JsonDeserializationContext context)
-				throws JsonParseException {
-			// TODO Auto-generated method stub
-			String content = json.getAsJsonObject().get("content").getAsString();
-			LazyLoadContent lazyLoadContent = new LazyLoadContent();
-			lazyLoadContent.setContent(content);
-			return lazyLoadContent;
-		}
-
-		@Override
-		public JsonElement serialize(LazyLoadContent src, Type typeOfSrc, JsonSerializationContext context) {
-			// TODO Auto-generated method stub
-			JsonObject result = new JsonObject();
-			result.add("content", new JsonPrimitive(src.getContent()));
-			return result;
-		}
-
-	}
-
+	
 	@Override
 	public boolean equals(Object o) {
 		if (o != null && o instanceof Article) {

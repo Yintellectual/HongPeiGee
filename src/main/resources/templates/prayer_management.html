@@ -1,0 +1,273 @@
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link
+	href="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<meta charset="UTF-8">
+<meta http-equiv="x-ua-compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+<link rel="stylesheet"
+	href="https://g.alicdn.com/de/prismplayer/2.8.0/skins/default/aliplayer-min.css" />
+<script charset="utf-8" type="text/javascript"
+	src="https://g.alicdn.com/de/prismplayer/2.8.0/aliplayer-h5-min.js"></script>
+
+</head>
+
+<style th:replace="cards :: style">
+
+</style>
+
+<style>
+.contentImg {
+	max-width: 300px;
+	width: auto;
+	height: auto;
+}
+
+.prism-player .prism-cover {
+	background-color: none;
+	display: block;
+}
+
+.prism-player .prism-marker-text {
+	display: none;
+}
+
+.collapsing {
+    -webkit-transition: none;
+    transition: none;
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+	<nav th:replace="cards :: navbar"></nav>
+
+	<div id="footerSection" class="py-5 m-0"></div>
+
+<div class="container">
+	<div class="btn-group">
+		<div class="btn btn-secondary" onClick="toggleHideAllRead($(this))">隐藏已读</div>
+	</div>
+	</div>
+<div id="display">
+	
+</div>
+
+
+	<div>
+		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+		<script
+			src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+		<script src="https://cdn.bootcss.com/moment.js/2.24.0/moment.min.js"></script>
+		<script src="https://cdn.bootcss.com/moment.js/2.24.0/locale/zh-cn.js"></script>
+		
+		
+		
+		<script>
+		//Design:
+		//1. All messages are arranged in two dimensions: user and post time. 
+			//1.1 All users are listed in alphabetical order of nicknames
+			//1.2 messages of the same user are listed in reversed post time order
+		//2. The content of the message is loaded on click. 
+		//3. The content of the message is displayed on a collapsible div. 
+	
+		//4. Those methods should provided for each user: pin/unpin hide revenge
+		//5. Those methods should provided for each message: reply, mark/unmark read, mark/unmark important
+		
+		$(document).ready(function(){
+			$.getJSON("/faq/god/believer/list", function(json1){
+				var believerArray = json1.data;
+				$.each(believerArray, function(i, item1){
+					var $beliverDisplayDiv = $('<div>').attr('id', item1.username).attr('class','container mb-2 pb-2');
+					var isPinned = (item1.pinned == 'true');
+					var isHidden = (item1.hidden == 'true');
+					$beliverDisplayDiv.append(
+							$('<div class="title">').append(
+								$('<h5>').text(item1.nickname+" ("+item1.username+")").attr('style', 'display: inline-block')
+									.css('color', isHidden? 'gray':'').css('color', isPinned? 'DARKORANGE':''),
+								$('<div>').attr('class', 'btn-group').attr('role', 'group').attr('style','float: right')
+									.append(
+										$('<button>').attr('type', 'button').attr('class', 'btn btn-primary btn-sm pinUserBtn').text('顶置').click(function(){
+											togglePinUser(item1.username, $(this));	
+										}),
+										$('<button>').attr('type', 'button').attr('class', 'btn btn-secondary btn-sm hideUserBtn').text('隐藏').click(function(){
+											toggleHideUser(item1.username, $(this));	
+										}),
+										$('<button>').attr('type', 'button').attr('class', 'btn btn-danger btn-sm').text('封禁')
+								)
+							)
+					);
+
+					if(!isHidden){
+						loadMessages(item1.username, $beliverDisplayDiv);
+					}
+					$("#display").append($beliverDisplayDiv);
+				});
+			})
+			
+		});
+		
+		
+		function loadMessages(username, $beliverDisplayDiv){
+			if(!($beliverDisplayDiv.attr('data-loaded')=='true')){
+				$.getJSON("/faq/god/prayer/list?believer="+username, function(json2){
+					var messageArray = json2.data;				
+					$.each(messageArray, function(i, item){
+						var $messageDisplayDiv = $('<div>').attr('id', item.uuid).attr('style','display:inline');
+						var timestamp = moment(item.timestamp);
+						var isRead = (item.isRead == 'true');
+						var isImportant = (item.isImportant == 'true');
+						var $showContentButton = $('<button>')
+	    						.text(timestamp.format("YY-MM-DD,HH:mm:ss"))
+	    						.attr('data-uuid',item.uuid)
+	    						.attr('data-toggle','collapse')
+	    						.attr('data-toggle','collapse')
+	    						.attr('data-target','#collapse'+item.uuid)
+		    					.attr('aria-expanded','false')
+		    					.attr('aria-controls','collapse'+item.uuid)
+	    						.attr('class','btn btn-success btn-sm showContent mr-1 mb-1')
+								.attr("onClick", "showContent(this)");
+	    				if(isRead){
+	    					$showContentButton
+	    					.attr('data-read', 'true')
+	    					.css('background-color', 'gray')
+							.css('border-color', 'gray')
+								
+	    				}
+	    				if(isImportant){
+	    					$showContentButton 
+	    					.attr('data-important', 'true')
+	    					.css('background-color','#ffc107')
+							.css('border-color', '#ffc107');
+	    				}
+	    				$messageDisplayDiv.append($showContentButton);
+	    				$messageDisplayDiv.append(
+								$('<div>').attr('class', 'collapse').attr('id', 'collapse'+item.uuid).append(
+									$('<div>').attr('class', 'btn-group').attr('role', 'group')
+										.append(
+											$('<a>').attr('role',"button").attr('class', 'btn btn-primary btn-sm').text('回复').attr('href','/faq/god/prayer/answer?uuid='+item.uuid),
+											$('<button>').attr('type', 'button').attr('class', 'btn btn-secondary btn-sm').text('已读')
+												.click(function(){
+													toggleMessageRead(item.uuid);
+												}),
+											$('<button>').attr('type', 'button').attr('class', 'btn btn-warning btn-sm').text('重要')
+												.click(function(){
+													toggleMessageImportant(item.uuid);
+												})
+										),	
+									$('<div>').attr('class', 'card card-body').text('登录过期请刷新页面。')
+								)
+						);
+	    				$beliverDisplayDiv.append($messageDisplayDiv);
+	    			});
+				})
+				$beliverDisplayDiv.attr('data-loaded', 'true');
+			}
+		}
+		
+		function showContent(btn){
+			var uuid = $(btn).attr("data-uuid");
+			var isDataLoaded = $(btn).attr("data-loaded");
+			if(!isDataLoaded){
+				$(btn).attr("data-loaded", "true");
+				$.getJSON("/faq/god/prayer/content/html?uuid="+uuid, function(json){
+					$(btn).parent().find(".card-body").text('').append(
+						$('<pre>').text(json.data)		
+					)
+				})
+				setMessageRead(uuid);
+			}
+		}
+		
+		function togglePinUser(username, $btn){
+			$.getJSON("/faq/god/believer/pin/toggle?username="+username, function(json){
+				if(json.status == 'success'){
+					if(json.data.isPinned == 'true'||json.data.isPinned){
+						$btn.parent().parent().children('h5').css('color', 'DARKORANGE');	
+					}else{
+						$btn.parent().parent().children("h5").css('background-color', '').css('color', 'black');
+					}
+				}
+			});
+		}
+		
+		function toggleHideUser(username, $btn){
+			$.getJSON("/faq/god/believer/hide/toggle?username="+username, function(json){
+				var $believerDisplayDiv = $btn.parent().parent().parent();
+				if(json.status == 'success'){
+					if(json.data.isHidden == 'true'){
+						$btn.parent().parent().children('h5').css('color', 'gray');
+						$believerDisplayDiv.children().hide();
+						$believerDisplayDiv.children(".title").show();
+					}else{
+						$btn.parent().parent().children("h5").css('background-color', '').css('color', 'black');
+						loadMessages(username, $btn.parent().parent().parent());
+						$believerDisplayDiv.children().show();
+					}
+				}
+			});
+		}
+		
+		function toggleMessageRead(uuid){
+			$.getJSON("/faq/god/message/read/toggle?uuid="+uuid, function(json){
+				if(json.status == 'success'){
+					if(json.data.isRead == 'true'){
+						var messageBtn = $("#"+uuid).children("button").css('background-color','gray').css('border-color', 'gray');
+					}else{
+						var messageBtn = $("#"+uuid).children("button").css('background-color','').css('border-color', '');
+					}
+				}
+			});
+		}
+		function setMessageRead(uuid){
+			$.getJSON("/faq/god/message/read/toggle?uuid="+uuid, function(json){
+				if(json.data.isRead == 'true'){
+					var $messageBtn = $("#"+uuid).children("button");
+					if(!($messageBtn.attr('data-important') === 'true')){
+						$messageBtn.css('background-color','gray').css('border-color', 'gray');
+						$messageBtn.attr('data-read', 'true');
+					}
+				}else{
+					setMessageRead(uuid);
+				}
+			});
+		}
+		
+		function toggleMessageImportant(uuid){
+			$.getJSON("/faq/god/message/important/toggle?uuid="+uuid, function(json){
+				if(json.status == 'success'){
+					if(json.data.isImportant === 'true'){
+						var messageBtn = $("#"+uuid).children("button").css('background-color','#ffc107').css('border-color', '#ffc107');
+						messageBtn.attr('data-important', 'true');
+					}else{
+						var messageBtn = $("#"+uuid).children("button").css('background-color','').css('border-color', '');
+						messageBtn.attr('data-important', '');
+					}
+				}
+			});
+		}
+		function toggleHideAllRead($btn){
+			var isHidden = $btn.attr('data-hide') == 'true';
+			if(isHidden){
+				$btn.attr('data-hide', 'false');
+				$("button[data-read='true']").show();
+			}else{
+				$btn.attr('data-hide', 'true');
+				$("button[data-read='true']").hide();
+			}
+			$("button[data-important='true']").show();
+		}
+		
+		
+		</script>
+	</div>
+</body>
+</html>

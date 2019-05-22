@@ -161,7 +161,7 @@ public class ArticleController {
 			model.addAttribute("currentPageId", navItemId);
 		}
 
-		return "index.html";
+		return "cards.html";
 	}
 
 	@Archived

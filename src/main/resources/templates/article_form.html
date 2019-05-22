@@ -13,13 +13,13 @@
  cursor: pointer; 
 }
 </style>
-<style th:replace="index :: style">
+<style th:replace="cards :: style">
 </style>
 </head>
 
 <body>
 
-	<nav th:replace="index :: navbar"></nav>
+	<nav th:replace="cards :: navbar"></nav>
 
 	<div class="container mt-5 py-3">
 		<form action="/admin/article/addOrUpdate" method="post">

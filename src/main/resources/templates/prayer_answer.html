@@ -1,0 +1,171 @@
+<html>
+
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link
+	href="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/css/bootstrap.min.css"
+	rel="stylesheet">
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<meta charset="UTF-8">
+<meta http-equiv="x-ua-compatible" content="IE=edge">
+<meta name="viewport"
+	content="width=device-width, height=device-height, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
+<link rel="stylesheet"
+	href="https://g.alicdn.com/de/prismplayer/2.8.0/skins/default/aliplayer-min.css" />
+<script charset="utf-8" type="text/javascript"
+	src="https://g.alicdn.com/de/prismplayer/2.8.0/aliplayer-h5-min.js"></script>
+
+</head>
+
+<style th:replace="cards :: style">
+
+</style>
+
+<style>
+.contentImg {
+	max-width: 300px;
+	width: auto;
+	height: auto;
+}
+
+.prism-player .prism-cover {
+	background-color: none;
+	display: block;
+}
+
+.prism-player .prism-marker-text {
+	display: none;
+}
+
+.collapsing {
+    -webkit-transition: none;
+    transition: none;
+    display: none;
+}
+</style>
+</head>
+
+<body>
+
+	<nav th:replace="cards :: navbar"></nav>
+
+	<div id="footerSection" class="py-5 m-0"></div>
+
+	<div class="container">
+		<div class="title">
+			<h5 id="name" th:data-pinned="${isPinned}" style="display: inline-block;" th:text="${believer_nickname+'('+believer_username+')'}"></h5>
+			<div class="btn-group" role="group" style="float: right">
+				<button  th:data-username="${believer_nickname}" type="button" class="btn btn-primary btn-sm" onclick="togglePinUser($(this))">顶置</button>
+				<button type="button" class="btn btn-danger btn-sm">封禁</button>
+			</div>
+	
+			<div>
+				<button id="time" th:data-uuid="${uuid}" th:data-important="${isImportant}" th:data-timestamp="${timestamp}" class="btn btn-success btn-sm"></button>
+				<button th:data-uuid="${uuid}" type="button" class="btn btn-warning btn-sm" onClick="toggleMessageImportant($(this))">重要</button>
+				<div class="card card-body"><pre th:text=${content}></pre></div>	
+			</div>
+		</div>
+		<form th:action="${'/faq/god/prayer/answer?uuid='+uuid}" method="post">
+			<button type="submit" class="btn btn-primary mt-2">提交</button>
+			<div class="form-group">
+				<textarea class="form-control" name="answer" rows="50"></textarea>
+				<button type="submit" class="btn btn-primary mb-2">提交</button>
+			</div>
+			
+		</form>
+	</div>
+
+	<div>
+		
+	</div>
+
+
+	<div>
+		<script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+		<script
+			src="https://cdn.bootcss.com/twitter-bootstrap/4.2.1/js/bootstrap.min.js"></script>
+		<script src="https://cdn.bootcss.com/moment.js/2.24.0/moment.min.js"></script>
+		<script src="https://cdn.bootcss.com/moment.js/2.24.0/locale/zh-cn.js"></script>
+		
+		
+		
+		<script>
+		//Design:
+		//1. All messages are arranged in two dimensions: user and post time. 
+			//1.1 All users are listed in alphabetical order of nicknames
+			//1.2 messages of the same user are listed in reversed post time order
+		//2. The content of the message is loaded on click. 
+		//3. The content of the message is displayed on a collapsible div. 
+	
+		//4. Those methods should provided for each user: pin/unpin hide revenge
+		//5. Those methods should provided for each message: reply, mark/unmark read, mark/unmark important
+		
+		$(document).ready(function(){
+			$("#time").css('background-color','#ffc107').css('border-color', '#ffc107');
+			var timestamp = moment(new Number($("#time").attr('data-timestamp')));
+			$("#time").text(timestamp.format("YY-MM-DD,HH:mm:ss"));
+			if($("#name").attr('data-pinned')=='true'){
+				$("#name").css('color', 'DARKORANGE');
+			}
+		});
+
+		
+		function showContent(btn){
+			var uuid = $(btn).attr("data-uuid");
+			var isDataLoaded = $(btn).attr("data-loaded");
+			if(!isDataLoaded){
+				$(btn).attr("data-loaded", "true");
+				$.getJSON("/faq/god/prayer/content/html?uuid="+uuid, function(json){
+					$(btn).parent().find(".card-body").text('').append(
+						$('<pre>').text(json.data)		
+					)
+				})
+				setMessageRead(uuid);
+			}
+		}
+		
+		function togglePinUser( $btn){
+			var username = $btn.attr('data-username');
+			$.getJSON("/faq/god/believer/pin/toggle?username="+username, function(json){
+				if(json.status == 'success'){
+					if(json.data.isPinned == 'true'){
+						$btn.parent().parent().children('h5').css('color', 'DARKORANGE');	
+					}else{
+						$btn.parent().parent().children("h5").css('background-color', '').css('color', 'black');
+					}
+				}
+			});
+		}
+				
+		function toggleMessageImportant($btn){
+			var uuid = $btn.attr('data-uuid');
+			$.getJSON("/faq/god/message/important/toggle?uuid="+uuid, function(json){
+				if(json.status == 'success'){
+					if(json.data.isImportant === 'true'){
+						var messageBtn = $("#time").css('background-color','#ffc107').css('border-color', '#ffc107');
+						messageBtn.attr('data-important', 'true');
+					}else{
+						var messageBtn = $("#time").css('background-color','').css('border-color', '');
+						messageBtn.attr('data-important', '');
+					}
+				}
+			});
+		}
+		function toggleHideAllRead($btn){
+			var isHidden = $btn.attr('data-hide') == 'true';
+			if(isHidden){
+				$btn.attr('data-hide', 'false');
+				$("button[data-read='true']").show();
+			}else{
+				$btn.attr('data-hide', 'true');
+				$("button[data-read='true']").hide();
+			}
+			$("button[data-important='true']").show();
+		}
+		
+		
+		</script>
+	</div>
+</body>
+</html>
